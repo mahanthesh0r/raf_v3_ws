@@ -1,0 +1,5 @@
+Objective: To determine the food items on the plate.
+Available items: ['pretzel','celery']
+
+
+You have been given an image.From the available items, what food items are present, as a comma-separated list? Format your answer in one-line as follows: ['first_item', 'second_item', ..., 'last_item']
