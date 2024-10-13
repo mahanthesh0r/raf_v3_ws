@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import base64
+import time
 import requests
 import sys
 import ast
@@ -18,6 +19,7 @@ from scipy.spatial.transform import Rotation
 from tf.transformations import quaternion_from_euler, euler_from_quaternion, quaternion_slerp
 from math import sqrt, inf, degrees, radians
 from robot_controller.robot_controller import KinovaRobotController
+
 
 
 
@@ -92,7 +94,7 @@ class BiteAcquisitionInference:
             torch.cuda.empty_cache()
 
         self.Z_OFFSET = 0.0075
-        self.CAMERA_OFFSET = 0.04
+        self.CAMERA_OFFSET = 0.035
         
         self.DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         self.api_key = os.environ['OPENAI_API_KEY']
@@ -105,7 +107,6 @@ class BiteAcquisitionInference:
 
         self.camera = RealSenseROS()
         self.tf_utils = raf_utils.TFUtils()
-        #self.skill_library = SkillLibrary()
         self.robot_controller = KinovaRobotController()
 
         
@@ -323,6 +324,7 @@ class BiteAcquisitionInference:
 
     
     def get_grasp_action(self, image, masks, categories):
+        self.robot_controller.set_gripper(0.80)
 
         solid_mask = None
         camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
@@ -341,10 +343,12 @@ class BiteAcquisitionInference:
                     while k not in ['y', 'n']:
                         k = ('Is the grasp point correct? (y/n): ')
                         if k == 'e':
-                            exit(1)
-                        cv2.destroyAllWindows()
+                            sys.exit(1)
+                    while k == 'n':
+                        sys.exit(1)
+                    cv2.destroyAllWindows()
                     
-                    self.robot_controller.set_gripper(0.80)
+                   
                     
                     food_angle = raf_utils.angle_between_pixels(centroid, lower_center, camera_color_data.shape[1], camera_color_data.shape[0])
                     yaw_angle = raf_utils.pretzel_angle_between_pixels(centroid, lower_center)
@@ -396,31 +400,41 @@ class BiteAcquisitionInference:
                         while k not in ['y', 'n']:
                             k = ('Is the robot in the correct position? (y/n): ')
                             if k == 'e':
-                                exit(1)
+                                sys.exit(1)
                         
                         grasp_success = self.robot_controller.set_gripper(0.90)
 
-                        if grasp_success:
-                            pose.position.z += 0.1
-                            move_success2 = self.robot_controller.move_to_pose(pose)
-                            if move_success2:
-                               feed_pose = self.robot_controller.move_to_feed_pose()
-                               if feed_pose:
-                                   self.robot_controller.set_gripper(0.6)
-                                   self.robot_controller.reset()
-                            
-                    
+                        k = input("Did the robot grasp the object? (y/n): ")
+                        while k not in ['y', 'n']:
+                            k = ('Did the robot grasp the object? (y/n): ')
+                            if k == 'e':
+                                sys.exit(1)
 
-                    
+                        pose.position.z += 0.1
+                        self.robot_controller.move_to_pose(pose)
+                        time.sleep(2)
+                        self.robot_controller.move_to_feed_pose()
+                        input("Is user ready? (y/n): ")
+                        while k not in ['y', 'n']:
+                            k = ('Is the robot in the correct position? (y/n): ')
+                            if k == 'e':
+                                sys.exit(1)
+                        self.robot_controller.set_gripper(0.6)
+                        time.sleep(2)
+                        self.robot_controller.reset()
 
-                    # success = self.skill_library.grasp_object('pose', pose, vel=0.5, accel=0.5, attempts=10, time=20, constraints=None)
-                    # if success:
-                    #     print("Successfully moved to the food item")
-                        
-                    # else:
-                    #     print("Failed to move to the food item")
-
+                    input("Continue feeding? (y/n): ")
+                    while k not in ['y', 'n']:
+                        k = ('Continue feeding? (y/n): ')
+                        if k == 'e' or k == 'n':
+                            sys.exit(1)
+                            break
+                    import cam_detection
+                    cam_detection.CamDetection().clear_plate()
                     break
+
+
+                    
                
 
 

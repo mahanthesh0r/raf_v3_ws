@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import sys
 import rospy
 import os
 from std_msgs.msg import String
@@ -20,6 +21,7 @@ from cv_bridge import CvBridge
 import math
 from scipy.spatial.transform import Rotation
 from inference_class import BiteAcquisitionInference
+from robot_controller.robot_controller import KinovaRobotController
 
 # Initialize CvBridge
 bridge = CvBridge()
@@ -30,11 +32,13 @@ class CamDetection:
         self.tf_utils = raf_utils.TFUtils()
         self.inference_server = BiteAcquisitionInference()
         self.camera = RealSenseROS()
+        self.robot_controller = KinovaRobotController()
 
     
     def clear_plate(self):
+        self.robot_controller.reset()
         #items = self.inference_server.recognize_items(color_image)
-        items = ['carrot','celery']
+        items = ['pretzel', 'plate']
 
         self.inference_server.FOOD_CLASSES = items
 
@@ -52,9 +56,9 @@ class CamDetection:
         while k not in ['y', 'n']:
              k = ('Are the detected items correct? (y/n): ')
              if k == 'e':
-                  exit(1)
+                  sys.exit(1)
         while k == 'n':
-             exit(1)
+             sys.exit(1)
         cv2.destroyAllWindows()
 
         clean_item_labels, _ = self.inference_server.clean_labels(item_labels)

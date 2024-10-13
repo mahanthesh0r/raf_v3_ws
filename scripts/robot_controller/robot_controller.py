@@ -8,17 +8,22 @@ from raf_v3.srv import GripperCommand, GripperCommandRequest, GripperCommandResp
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 from .base import RobotController
+import time
 
 class KinovaRobotController(RobotController):
     def __init__(self):
         # Do nothing
         self.DEFAULT_FORCE_THRESHOLD = [30.0, 30.0, 30.0, 30.0, 30.0, 30.0]
-        self.acq_pos = [0.004, 0.063, -1.100, -0.004, -1.980, 1.566, 4.814377930122582]
+        self.acq_pos = [-0.000, 0.000, -1.571, 0.000, -1.571, 1.571]
         self.transfer_pos = [3.9634926355200855, 5.7086929905176556, 4.912630464851094, 4.31408101511415, 4.877527871154977, 5.429743910562832, 3.8112093559638285]
         self.feed_joint_pose = [1.010, -0.034, -1.849, 1.192, -1.976, -0.356]
 
     def reset(self):
         self.move_to_acq_pose()
+        time.sleep(3)
+        self.set_gripper(0.0)
+        time.sleep(3)
+        
 
     def move_to_feed_pose(self):
         print('Moving to feed pose')
@@ -36,9 +41,9 @@ class KinovaRobotController(RobotController):
 
     def set_joint_position(self, joint_position, mode = "POSITION"):
         print("Calling set_joint_positions with joint_position: ", joint_position)
-        rospy.wait_for_service('set_joint_position')
+        rospy.wait_for_service('my_gen3/set_joint_position')
         try:
-            move_to_joint_position = rospy.ServiceProxy('set_joint_position', JointCommand)
+            move_to_joint_position = rospy.ServiceProxy('/my_gen3/set_joint_position', JointCommand)
             resp1 = move_to_joint_position(mode, joint_position, 100.0)
             return resp1.success
         except rospy.ServiceException as e:
