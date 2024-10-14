@@ -36,13 +36,14 @@ class CamDetection:
 
     
     def clear_plate(self):
+        camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
         self.robot_controller.reset()
-        #items = self.inference_server.recognize_items(color_image)
-        items = ['pretzel', 'plate']
+        items = self.inference_server.recognize_items(camera_color_data)
+        #items = ['celery', 'carrot']
 
         self.inference_server.FOOD_CLASSES = items
 
-        camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
+        
         if camera_color_data is None:
             print("No camera data")
             return

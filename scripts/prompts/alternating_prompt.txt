@@ -1,0 +1,20 @@
+Objective: To determine which food item I should eat next from the plate.
+Available items: ['carrots','celery']
+
+
+You have been given an image of food items on a plate. I have just had a bite of {variable} and I would like to take a bite of different food item. From the items you have detected on the plate, what should my next bite be? 
+Your answer should have the following format: ['next_bite']. Do not return anything except this.
+Only one item is detected, your answer should be of the food item that is detected. Never give an answer of a food item that is not seen in the pciture.
+
+Examples:
+Text input: "I have just had a bite of carrot."
+Image Input: Plate with 2 carrots, 3 celery.
+Output: ['celery']
+
+Text input: "I have just had a bite of celery."
+Image Input: Plate with 1 carrots, 2 celery.
+Output: ['carrot']
+
+Text input: "I have just had a bite of celery."
+Image Input: Plate with 0 carrots, 2 celery.
+Output: ['celery']

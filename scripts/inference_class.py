@@ -42,19 +42,50 @@ class GPT4VFoodIdentification:
     def __init__(self, api_key, prompt_dir):
         self.api_key = api_key
 
+        self.PREFERENCE = "carrots_first"
+        self.history_file_path = "/home/labuser/raf_v3_ws/src/raf_v3/scripts"
+        
+
         self.headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.api_key}"
             }
         self.prompt_dir = prompt_dir
-
         
-        with open("%s/identification.txt"%self.prompt_dir, 'r') as f:
-            self.prompt_text = f.read()
+        
+
+
+        if self.PREFERENCE == "alternate":
+            with open("%s/alternating_prompt.txt"%self.prompt_dir, 'r') as f:
+                self.prompt_text = f.read()
+                self.previous_bite = self.get_history_food()
+                self.prompt_text = self.prompt_text.replace("{variable}", self.previous_bite)
+        elif self.PREFERENCE == "carrots_first":
+            with open("%s/carrots_first_prompt.txt"%self.prompt_dir, 'r') as f:
+                self.prompt_text = f.read()
+        else:
+            with open("%s/identification.txt"%self.prompt_dir, 'r') as f:
+                self.prompt_text = f.read()
 
     def encode_image(self, openCV_image):
         retval, buffer = cv2.imencode('.jpg', openCV_image)
         return base64.b64encode(buffer).decode('utf-8')
+    
+    def get_history_food(self):
+        with open("%s/history.txt"%self.history_file_path, 'r') as f:
+            history = f.read()
+            previous_bite = ast.literal_eval(history)
+            return previous_bite[-1]
+        
+    def update_history(self, food):
+        with open("%s/history.txt"%self.history_file_path, 'r') as f:
+            history = f.read()
+            previous_bite = ast.literal_eval(history)
+            previous_bite.append(food)
+            with open("%s/history.txt"%self.history_file_path, 'w') as f:
+                f.write(str(previous_bite))
+            
+            
         
     def prompt(self, image):
         # Getting the base64 string
@@ -96,6 +127,7 @@ class BiteAcquisitionInference:
         self.Z_OFFSET = 0.0075
         self.CAMERA_OFFSET = 0.035
         
+        
         self.DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         self.api_key = os.environ['OPENAI_API_KEY']
         self.gpt4v_client = GPT4VFoodIdentification(self.api_key, '/home/labuser/raf_v3_ws/src/raf_v3/scripts/prompts')
@@ -108,6 +140,10 @@ class BiteAcquisitionInference:
         self.camera = RealSenseROS()
         self.tf_utils = raf_utils.TFUtils()
         self.robot_controller = KinovaRobotController()
+        
+
+         
+
 
         
         # Grounding DINO stuff
@@ -164,6 +200,8 @@ class BiteAcquisitionInference:
             box_threshold=self.BOX_THRESHOLD,
             text_threshold=self.TEXT_THRESHOLD,
         )
+
+        
 
         box_annotator = sv.BoundingBoxAnnotator()
         label_annotator = sv.LabelAnnotator()
@@ -283,7 +321,8 @@ class BiteAcquisitionInference:
         instance_count = {}
         for label in labels:
             label = label[:-4].strip()
-            clean_labels.append(label)
+            if label != 'plate':
+                clean_labels.append(label)
             if label in instance_count:
                 instance_count[label] += 1
             else:
@@ -296,10 +335,13 @@ class BiteAcquisitionInference:
 
         if sim:
             for label in labels:
-                if label in ['carrot', 'celery', 'pretzel']:
-                    categories.append('snack')
-                else:
-                    categories.append('other')
+                if label in ['carrot']:
+                    categories.append('carrot')
+                elif label in ['pretzel']:
+                    categories.append('pretzel')
+                elif label in ['celery']:
+                    categories.append('celery')
+                
 
         return categories
     
@@ -315,22 +357,19 @@ class BiteAcquisitionInference:
         print('Food to consider: ', food_to_consider)
 
         for idx in food_to_consider:
-            if categories[idx] == 'snack' or categories[idx] == 'other':
+            if categories[idx] == 'carrot' or categories[idx] == 'pretzel' or categories[idx] == 'celery':
                 self.get_grasp_action(image, masks, categories)
-
-              
-                
 
 
     
     def get_grasp_action(self, image, masks, categories):
-        self.robot_controller.set_gripper(0.80)
+        self.robot_controller.set_gripper(0.78)
 
         solid_mask = None
         camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
 
         for i, (category, mask) in enumerate(zip(categories, masks)):
-            if category == 'snack' or category == 'other':
+            if category == 'carrot' or category == 'pretzel' or category == 'celery':
                for item_mask in mask:
                     centroid = detect_centroid(item_mask)
                     lower_center = detect_lower_center(item_mask)
@@ -401,6 +440,9 @@ class BiteAcquisitionInference:
                             k = ('Is the robot in the correct position? (y/n): ')
                             if k == 'e':
                                 sys.exit(1)
+                        while k == 'n':
+                            sys.exit(1)
+                            break
                         
                         grasp_success = self.robot_controller.set_gripper(0.90)
 
@@ -409,6 +451,9 @@ class BiteAcquisitionInference:
                             k = ('Did the robot grasp the object? (y/n): ')
                             if k == 'e':
                                 sys.exit(1)
+                        while k == 'n':
+                            sys.exit(1)
+                            break
 
                         pose.position.z += 0.1
                         self.robot_controller.move_to_pose(pose)
@@ -419,8 +464,16 @@ class BiteAcquisitionInference:
                             k = ('Is the robot in the correct position? (y/n): ')
                             if k == 'e':
                                 sys.exit(1)
+                        while k == 'n':
+                            sys.exit(1)
+                            break
                         self.robot_controller.set_gripper(0.6)
                         time.sleep(2)
+                        if self.gpt4v_client.PREFERENCE == "alternate":
+                            if self.gpt4v_client.previous_bite == 'carrot':
+                                self.gpt4v_client.update_history('celery')
+                            else:
+                                self.gpt4v_client.update_history('carrot')
                         self.robot_controller.reset()
 
                     input("Continue feeding? (y/n): ")
@@ -429,6 +482,9 @@ class BiteAcquisitionInference:
                         if k == 'e' or k == 'n':
                             sys.exit(1)
                             break
+                    while k == 'n':
+                        sys.exit(1)
+                        break
                     import cam_detection
                     cam_detection.CamDetection().clear_plate()
                     break
