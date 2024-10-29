@@ -42,7 +42,7 @@ class GPT4VFoodIdentification:
     def __init__(self, api_key, prompt_dir):
         self.api_key = api_key
 
-        self.PREFERENCE = "carrots_first"
+        self.PREFERENCE = "custom"
         self.history_file_path = "/home/labuser/raf_v3_ws/src/raf_v3/scripts"
         
 
@@ -64,7 +64,7 @@ class GPT4VFoodIdentification:
             with open("%s/carrots_first_prompt.txt"%self.prompt_dir, 'r') as f:
                 self.prompt_text = f.read()
         else:
-            with open("%s/identification.txt"%self.prompt_dir, 'r') as f:
+            with open("%s/custom.txt"%self.prompt_dir, 'r') as f:
                 self.prompt_text = f.read()
 
     def encode_image(self, openCV_image):
@@ -124,7 +124,8 @@ class BiteAcquisitionInference:
         with torch.no_grad():
             torch.cuda.empty_cache()
 
-        self.Z_OFFSET = 0.0075
+        self.Z_OFFSET = 0.0085
+        self.GRIPPER_OFFSET = 0.00 #0.07
         self.CAMERA_OFFSET = 0.035
         
         
@@ -133,8 +134,8 @@ class BiteAcquisitionInference:
         self.gpt4v_client = GPT4VFoodIdentification(self.api_key, '/home/labuser/raf_v3_ws/src/raf_v3/scripts/prompts')
 
         self.FOOD_CLASSES = ["pretzel"]
-        self.BOX_THRESHOLD = 0.3
-        self.TEXT_THRESHOLD = 0.3
+        self.BOX_THRESHOLD = 0.036
+        self.TEXT_THRESHOLD = 0.028
         self.NMS_THRESHOLD = 0.4
 
         self.camera = RealSenseROS()
@@ -201,7 +202,36 @@ class BiteAcquisitionInference:
             text_threshold=self.TEXT_THRESHOLD,
         )
 
+        # Calculate average width and height of detected boxes
+        total_width = 0
+        total_height = 0
+        num_boxes = len(detections.xyxy)
+
+        for box in detections.xyxy:
+            x_min, y_min, x_max, y_max = box        
+            width = x_max - x_min
+            height = y_max - y_min
+            total_width += width
+            total_height += height
+
+        if num_boxes > 0:
+            avg_width = total_width / num_boxes
+            avg_height = total_height / num_boxes
+        else:
+            avg_width = 0
+            avg_height = 0
         
+        print("Average Width: ", avg_width, "Average Height: ", avg_height)
+
+        # Filter out boxes that are bigger than the average box size
+        filter_indices = [
+            i for i, box in enumerate(detections.xyxy)
+            if (box[2] - box[0]) <=  0.5 * avg_width and (box[3] - box[1]) <= avg_height
+        ]
+
+        detections.xyxy = detections.xyxy[filter_indices]
+        detections.confidence = detections.confidence[filter_indices]
+        detections.class_id = detections.class_id[filter_indices]
 
         box_annotator = sv.BoundingBoxAnnotator()
         label_annotator = sv.LabelAnnotator()
@@ -372,9 +402,23 @@ class BiteAcquisitionInference:
             if category == 'carrot' or category == 'pretzel' or category == 'celery':
                for item_mask in mask:
                     centroid = detect_centroid(item_mask)
+
+                    # get the coordinates of the box and find the angle
+                    p1,p2,box = raf_utils.get_box_points(item_mask)
+                    yaw_angle = raf_utils.pretzel_angle_between_pixels(p1,p2)
+
+                    print("DETECTED ANGLE: ", yaw_angle)
+
+                    #vis2 = self.draw_points(camera_color_data, centroid, p1, p2,box)
+
+
                     lower_center = detect_lower_center(item_mask)
                     grasp_point = get_grasp_points(centroid, lower_center)
                     vis2 = self.draw_points(camera_color_data, centroid, lower_center, grasp_point)
+
+
+
+                    
 
                     cv2.imshow('vis2', vis2)
                     cv2.waitKey(0)
@@ -389,12 +433,19 @@ class BiteAcquisitionInference:
                     
                    
                     
-                    food_angle = raf_utils.angle_between_pixels(centroid, lower_center, camera_color_data.shape[1], camera_color_data.shape[0])
-                    yaw_angle = raf_utils.pretzel_angle_between_pixels(centroid, lower_center)
+                    #food_angle = raf_utils.angle_between_pixels(centroid, lower_center, camera_color_data.shape[1], camera_color_data.shape[0])
+                    
+
+
+                    #yaw_angle = raf_utils.pretzel_angle_between_pixels(centroid, lower_center)
+                    #yaw_angle = raf_utils.pretzel_angle_between_pixels(p1,p2)
+
+                    #print("DETECTED ANGLE: ", yaw_angle)
+
                     angle_of_rotation = (180-yaw_angle) - 30
                     rot = self.get_rotation_matrix(radians(angle_of_rotation))
                     
-                    validity, center_point = raf_utils.pixel2World(camera_info_data, grasp_point[0], grasp_point[1], camera_depth_data)
+                    validity, center_point = raf_utils.pixel2World(camera_info_data, centroid[0], centroid[1], camera_depth_data)
 
                     if not validity:
                         print("Invalid centroid")
@@ -412,6 +463,7 @@ class BiteAcquisitionInference:
                     
                     pose.position.y += self.CAMERA_OFFSET
                     pose.position.z -= self.Z_OFFSET
+                    pose.position.z += self.GRIPPER_OFFSET
 
 
                     euler_angles = euler_from_quaternion([pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w])
@@ -495,9 +547,10 @@ class BiteAcquisitionInference:
 
 
     def draw_points(self, image, center, lower, mid):
+        
         cv2.circle(image, center, 5, (0,255,0), -1)
         cv2.circle(image, lower, 5, (0,0,255), -1)
-        cv2.circle(image, mid, 5, (255,0,0), -1)
+        cv2.circle(image, mid, 5, (0,0,255), -1)
         return image  
 
 

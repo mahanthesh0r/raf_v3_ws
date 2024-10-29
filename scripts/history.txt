@@ -1,1 +1,1 @@
-['carrot', 'celery', 'carrot', 'celery', 'carrot', 'celery']
+['carrot', 'celery', 'carrot', 'celery', 'carrot']

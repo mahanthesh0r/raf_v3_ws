@@ -22,4 +22,9 @@
 
 <param name="robot_description" command="$(find xacro)/xacro --inorder $(find kortex_description)/robots/gen3_robotiq_2f_140.xacro dof:=$(arg dof) sim:=false vision:=false" />
 
+<!-- <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+<arg name="filters" value="pointcloud"/>
+<arg name="align_depth" value="true"/>
+</include> -->
+
 </launch>

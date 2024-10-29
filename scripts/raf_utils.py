@@ -20,7 +20,37 @@ def angle_between_pixels(source_px, target_px, image_width, image_height, orient
     angle = angle_between(np.array([-image_width,0]), source_px_cartesian-target_px_cartesian)
     robot_angle_offset = -90
     return angle + robot_angle_offset
+
+# function to get the points of the "top" and "bottom" of the box
+def get_box_points(mask):
+    contours,hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    if contours:
+        largest_contour = max(contours, key=cv2.contourArea)
+
+
+    # get a rotated rectangle around the segmentation
+    rect = cv2.minAreaRect(largest_contour)
+    # get the box points of the rectangle and convert to integers
+    box = cv2.boxPoints(rect)
+    box = np.int0(box)
+
+    if np.linalg.norm(box[0]-box[1]) < np.linalg.norm(box[1]-box[2]):
+        # then the longer side is the one between the first and second points
+        # i want the midpoints between the widths
+        p1 = (box[0] + box[1]) / 2
+        p2 = (box[2] + box[3]) / 2
+    else:
+        p1 = (box[1] + box[2]) / 2
+        p2 = (box[3] + box[0]) / 2
     
+    # Convert midpoints to integers
+    p1 = tuple(map(int, p1))
+    p2 = tuple(map(int, p2))
+
+    return p1, p2, box
+
+
+# custom one to return angle between 0 and 180 degress
 def pretzel_angle_between_pixels(center, lower):
     center_y = center[1]
     lower_y = lower[1]
