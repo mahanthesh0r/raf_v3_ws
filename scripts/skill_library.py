@@ -1,197 +1,78 @@
-import time
-import sys
+import cv2
+import numpy as np
+from scipy.spatial.transform import Rotation
+import math
+import threading
+import raf_utils as utils
+import cmath
+import yaml
+
+from robot_controller.robot_controller import KinovaRobotController
+
+# ros imports
 import rospy
-import moveit_commander
-import moveit_msgs.msg
-from math import sqrt, inf, degrees, radians
+from geometry_msgs.msg import Point, Pose
+from sensor_msgs.msg import JointState
+from std_msgs.msg import Bool
+
+from rs_ros import RealSenseROS
+
 
 class SkillLibrary:
     def __init__(self):
-        super(SkillLibrary, self).__init__()
-        moveit_commander.roscpp_initialize(sys.argv)
+
+        self.tf_utils = utils.TFUtils()
+        
+        self.robot_controller = KinovaRobotController()
+
         
 
-        try:
-            self.is_gripper_present = rospy.get_param(rospy.get_namespace() + "is_gripper_present", False)
-            if self.is_gripper_present:
-                gripper_joint_names = rospy.get_param(rospy.get_namespace() + "gripper_joint_names", [])
-                self.gripper_joint_name = gripper_joint_names[0]
+
+    def transfer_to_mouth(self, OFFSET = 0.1):
+
+        self.robot_controller.move_to_transfer_pose()
+        inp = input('Detect mouth center? (y/n): ')
+        while inp != 'y':
+            inp = input('Detect mouth center? (y/n): ')
+
+        # check if mouth is open
+        while True:
+            mouth_open = rospy.wait_for_message('/mouth_open', Bool)
+            if mouth_open.data:
+                break
             else:
-                self.gripper_joint_name = ""
-            self.degrees_of_freedom = rospy.get_param(rospy.get_namespace() + "degrees_of_freedom", 7)
-
-            # Create the MoveItInterface necessary objects
-            arm_group_name = "arm"
-            self.robot = moveit_commander.RobotCommander("robot_description")
-            self.scene = moveit_commander.PlanningSceneInterface(ns=rospy.get_namespace())
-            self.arm_group = moveit_commander.MoveGroupCommander(arm_group_name, ns=rospy.get_namespace())
-            self.display_trajectory_publisher = rospy.Publisher(rospy.get_namespace() + 'move_group/display_planned_path',
-                                                            moveit_msgs.msg.DisplayTrajectory,
-                                                            queue_size=20)
-
-            if self.is_gripper_present:
-                gripper_group_name = "gripper"
-                self.gripper_group = moveit_commander.MoveGroupCommander(gripper_group_name, ns=rospy.get_namespace())
-
-            rospy.loginfo("Initializing node in namespace " + rospy.get_namespace())
-        except Exception as e:
-            print (e)
-            self.is_init_success = False
-        else:
-            self.is_init_success = True
-
-    def get_cartesian_pose(self):
-        arm_group = self.arm_group
-
-        # Get the current pose and display it
-        pose = arm_group.get_current_pose()
-        
-
-        return pose.pose
-
-   
-
-    def move(self, goal_type, goal, tolerance=0.01, vel=0.5, accel=0.5, attempts=10, time=5.0, constraints=None):
-        arm_group = self.arm_group
-
-        # Set Parameters
-        arm_group.set_max_velocity_scaling_factor(vel)
-        arm_group.set_max_acceleration_scaling_factor(accel)
-        arm_group.set_num_planning_attempts(attempts)
-        arm_group.set_planning_time(time)
+                print('Mouth is closed.')
     
+        mouth_center_3d_msg = rospy.wait_for_message('/mouth_center', Point)
+        mouth_center_3d = np.array([mouth_center_3d_msg.x, mouth_center_3d_msg.y, mouth_center_3d_msg.z])
+
+        input("Press ENTER to move in front of mouth.")
+
+        # create frame at mouth center
+        mouth_center_transform = np.eye(4)
+        mouth_center_transform[:3,3] = mouth_center_3d
+
+        mouth_center_transform = self.tf_utils.getTransformationFromTF('base_link', 'camera_link') @ mouth_center_transform
+
+        mouth_offset = np.eye(4)
+        mouth_offset[2,3] = -OFFSET
         
+        transfer_target = mouth_center_transform @ mouth_offset
 
-        if goal_type == 'pose':
-            arm_group.clear_pose_targets()
-            arm_group.set_goal_position_tolerance(tolerance)
+        base_to_tooltip = self.tf_utils.getTransformationFromTF('base_link', 'tool_frame')
 
-            if constraints is not None:
-                arm_group.set_path_constraints(constraints)
-            
-            arm_group.set_pose_target(goal)
+        transfer_target[:3,:3] = base_to_tooltip[:3,:3]
 
-            # Plan and Execute
-            (success, plan, planning_time, error_code) = arm_group.plan()
-            if success:
-                print("Planning was successful")
-                print(f"Panning time: {planning_time}")
-                print("Executing the plan")
-                joint_positions = plan.joint_trajectory.points[-1].positions
+        pose = self.tf_utils.get_pose_msg_from_transform(transfer_target)
 
-                print("Last Planning Angles: ", [degrees(joint_positions[i]) for i in range(len(joint_positions))])
-                print("Planning size: ", len(plan.joint_trajectory.points))
-        
-                success = arm_group.execute(plan, wait=True)
-                arm_group.stop()
-                arm_group.clear_pose_targets()
-            else:
-                print("Planning failed")
+        # visualize on rviz
+        self.tf_utils.publishTransformationToTF('base_link', 'mouth_center_transform', mouth_center_transform)
+        self.tf_utils.publishTransformationToTF('base_link', 'transfer_target', transfer_target)
 
-        elif goal_type == 'joint':
-            # Get the current joint positions
-            joint_positions = arm_group.get_current_joint_values()
+        print(f"Moving to transfer target: {pose}")
 
-            # Set the goal joint tolerance
-            self.arm_group.set_goal_joint_tolerance(tolerance)
+        self.robot_controller.move_to_pose(pose)
 
-            # Set the joint target configuration
-            joint_positions[0] = goal[0]
-            joint_positions[1] = goal[1]
-            joint_positions[2] = goal[2]
-            joint_positions[3] = goal[3]
-            joint_positions[4] = goal[4]
-            joint_positions[5] = goal[5]
-            arm_group.set_joint_value_target(joint_positions)
-
-            # Plan & Execute
-            (success, plan, planning_time, error_code) = arm_group.plan()
-            if success:
-                print("Planning Successful.")
-                print(f"Planning time: {planning_time}")
-                print("Executing Plan...")
-                success = arm_group.execute(plan, wait=True)
-                arm_group.stop()
-
-        elif goal_type == 'path':
-            # Clear old pose targets
-            arm_group.clear_pose_targets()
-
-            # Clear max cartesian speed
-            arm_group.clear_max_cartesian_link_speed()
-
-            # Set the tolerance
-            arm_group.set_goal_position_tolerance(tolerance)
-
-            # Set the trajectory constraint if one is specified
-            if constraints is not None:
-                arm_group.set_path_constraints(constraints)
-
-            eef_step = 0.01
-            jump_threshold = 0.0
-            (plan, fraction) = arm_group.compute_cartesian_path(goal, eef_step, jump_threshold)
-            success = arm_group.execute(plan, wait=True)
-            arm_group.stop()
-
-        elif goal_type == 'gripper':
-            # We only have to move this joint because all others are mimic!
-            gripper_joint = self.robot.get_joint(self.gripper_joint_name)
-            gripper_max_absolute_pos = gripper_joint.max_bound()
-            gripper_min_absolute_pos = gripper_joint.min_bound()
-            success = gripper_joint.move(goal * (gripper_max_absolute_pos - gripper_min_absolute_pos) + gripper_min_absolute_pos, True)
-
-        else:
-            rospy.ERROR("Invalid goal type")
-
-        return success
-    
-
-    def reach_named_position(self, target):
-        arm_group = self.arm_group
-        
-        # Going to one of those targets
-        rospy.loginfo("Going to named target " + target)
-        # Set the target
-        arm_group.set_named_target(target)
-        # Plan the trajectory
-        (success_flag, trajectory_message, planning_time, error_code) = arm_group.plan()
-        # Execute the trajectory and block while it's not finished
-        return arm_group.execute(trajectory_message, wait=True)
-    
-
-    def grasp_object(self, goal_type, goal, tolerance=0.01, vel=0.5, accel=0.5, attempts=10, time=5.0, constraints= None):
-        
-        # # # Move to grasp scan position
-        # success = self.reach_named_position("overlook")
-        # if not success:
-        #     return False
-        
-        # TODO : Calculate the gipper pose based on the object
-        # Gripper pose for the pre-grasp (Need improvement)
-
-        # success = self.move('gripper', 0.65)
-        # if not success:
-        #     return False
-        
-        # Move to grasp position
-        success = self.move(goal_type, goal, tolerance, vel, accel, attempts, time, constraints)
-        if not success:
-            return False
-        
-        # # Close the gripper
-        # success = self.move('gripper', 0.85)
-        # if not success:
-        #     return False
-        
-        # success = self.reach_named_position("overlook")
-        # if not success:
-        #     return False
-
-
-    
-
-
-
-
-
+        input("Press ENTER to move back to before transfer pose.")
+        self.robot_controller.move_to_transfer_pose()
         

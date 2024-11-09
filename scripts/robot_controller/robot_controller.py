@@ -17,6 +17,8 @@ class KinovaRobotController(RobotController):
         self.acq_pos = [-0.000, 0.000, -1.571, 0.000, -1.571, 1.571]
         self.transfer_pos = [3.9634926355200855, 5.7086929905176556, 4.912630464851094, 4.31408101511415, 4.877527871154977, 5.429743910562832, 3.8112093559638285]
         self.feed_joint_pose = [1.010, -0.034, -1.849, 1.192, -1.976, -0.356]
+        #self.feed_joint_pose = [0.638, 0.0083, -1.711, 1.211, -2.090, -0.407]
+        #self.feed_joint_pose = [0.747, -0.003, -1.878, 1.411, -2.100, -0.256]
 
     def reset(self):
         self.move_to_acq_pose()
@@ -86,7 +88,7 @@ class KinovaRobotController(RobotController):
 
     def move_to_transfer_pose(self):
         print('Moving to transfer pose')
-        self.set_joint_position(self.transfer_pos)
+        self.set_joint_position(self.feed_joint_pose)
 
 if __name__ == '__main__':
     rospy.init_node('robot_controller', anonymous=True)

@@ -39,15 +39,25 @@ def get_box_points(mask):
         # i want the midpoints between the widths
         p1 = (box[0] + box[1]) / 2
         p2 = (box[2] + box[3]) / 2
+        
+        # grab points for width calculation
+        width_p1 = box[0]
+        width_p2 = box[1]
+
+        # get the length of the shorter side
     else:
         p1 = (box[1] + box[2]) / 2
         p2 = (box[3] + box[0]) / 2
+
+        # grab points for width calculation
+        width_p1 = box[1]
+        width_p2 = box[2]
     
     # Convert midpoints to integers
     p1 = tuple(map(int, p1))
     p2 = tuple(map(int, p2))
 
-    return p1, p2, box
+    return p1, p2, width_p1, width_p2, box
 
 
 # custom one to return angle between 0 and 180 degress
@@ -64,6 +74,9 @@ def pretzel_angle_between_pixels(center, lower):
     
     a = abs(p2[1] - p1[1])
     b = abs(p2[0] - p1[0])
+    if b == 0:
+        b=0.001
+    
     angle = math.degrees(math.atan(a/b))
 
     if p1[0] > p2[0]:
@@ -146,6 +159,7 @@ def pixel2World(camera_info, image_x, image_y, depth_image, box_width = 2):
     world_z = depth
 
     return True, np.array([world_x, world_y, world_z])
+
 
 def world2Pixel(camera_info, world_x, world_y, world_z):
 

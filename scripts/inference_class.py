@@ -19,6 +19,8 @@ from scipy.spatial.transform import Rotation
 from tf.transformations import quaternion_from_euler, euler_from_quaternion, quaternion_slerp
 from math import sqrt, inf, degrees, radians
 from robot_controller.robot_controller import KinovaRobotController
+from pixel_selector import PixelSelector
+import rospy
 
 
 
@@ -124,9 +126,14 @@ class BiteAcquisitionInference:
         with torch.no_grad():
             torch.cuda.empty_cache()
 
-        self.Z_OFFSET = 0.0085
+        # what it was before
+        # self.Z_OFFSET = 0.01
+        # self.GRIPPER_OFFSET = 0.00 #0.07
+        # self.CAMERA_OFFSET = 0.035
+
+        self.Z_OFFSET = 0.01
         self.GRIPPER_OFFSET = 0.00 #0.07
-        self.CAMERA_OFFSET = 0.035
+        self.CAMERA_OFFSET = 0.042
         
         
         self.DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -134,13 +141,22 @@ class BiteAcquisitionInference:
         self.gpt4v_client = GPT4VFoodIdentification(self.api_key, '/home/labuser/raf_v3_ws/src/raf_v3/scripts/prompts')
 
         self.FOOD_CLASSES = ["pretzel"]
-        self.BOX_THRESHOLD = 0.036
-        self.TEXT_THRESHOLD = 0.028
+        self.HOLDER_CLASSES = ["bowl"]
+        # self.BOX_THRESHOLD = 0.036
+        # self.TEXT_THRESHOLD = 0.028
+        # self.NMS_THRESHOLD = 0.4
+
+        # thresholds for pretzels
+        self.BOX_THRESHOLD = 0.03
+        self.TEXT_THRESHOLD = 0.02
         self.NMS_THRESHOLD = 0.4
 
         self.camera = RealSenseROS()
         self.tf_utils = raf_utils.TFUtils()
         self.robot_controller = KinovaRobotController()
+
+        self.pixel_selector = PixelSelector()
+
         
 
          
@@ -190,7 +206,37 @@ class BiteAcquisitionInference:
         items = ast.literal_eval(response)
         return items
     
-    def detect_items(self, image):
+    # def detect_bowl(self, image):
+    #     cropped_image = image.copy()
+
+    #     detections = self.grounding_dino_model.predict_with_classes(
+    #         image=cropped_image,
+    #         classes=self.HOLDER_CLASSES,
+    #         box_threshold=self.BOX_THRESHOLD,
+    #         text_threshold=self.TEXT_THRESHOLD,
+    #     )
+
+    #     box_annotator = sv.BoundingBoxAnnotator()
+    #     label_annotator = sv.LabelAnnotator()
+    #     labels = [
+    #         f"{self.HOLDER_CLASSES_CLASSES[class_id]} {confidence:0.2f}" 
+    #         for _, _, confidence, class_id, _, _
+    #         in detections]
+        
+    #     annotated_frame = box_annotator.annotate(scene=cropped_image.copy(), detections=detections)
+    #     annotated_frame = label_annotator.annotate(scene=annotated_frame, detections=detections, labels=labels)
+
+    #     nms_idx = torchvision.ops.nms(
+    #         torch.from_numpy(detections.xyxy), 
+    #         torch.from_numpy(detections.confidence), 
+    #         self.NMS_THRESHOLD
+    #     ).numpy().tolist()
+
+    #     detections.xyxy = detections.xyxy[nms_idx]
+    #     detections.confidence = detections.confidence[nms_idx]
+    #     detections.class_id = detections.class_id[nms_idx]
+    
+    def detect_food(self, image):
         print("Food Classes", self.FOOD_CLASSES)
 
         cropped_image = image.copy()
@@ -202,36 +248,8 @@ class BiteAcquisitionInference:
             text_threshold=self.TEXT_THRESHOLD,
         )
 
-        # Calculate average width and height of detected boxes
-        total_width = 0
-        total_height = 0
-        num_boxes = len(detections.xyxy)
-
-        for box in detections.xyxy:
-            x_min, y_min, x_max, y_max = box        
-            width = x_max - x_min
-            height = y_max - y_min
-            total_width += width
-            total_height += height
-
-        if num_boxes > 0:
-            avg_width = total_width / num_boxes
-            avg_height = total_height / num_boxes
-        else:
-            avg_width = 0
-            avg_height = 0
+        detections = self.remove_large_boxes(detections)
         
-        print("Average Width: ", avg_width, "Average Height: ", avg_height)
-
-        # Filter out boxes that are bigger than the average box size
-        filter_indices = [
-            i for i, box in enumerate(detections.xyxy)
-            if (box[2] - box[0]) <=  0.5 * avg_width and (box[3] - box[1]) <= avg_height
-        ]
-
-        detections.xyxy = detections.xyxy[filter_indices]
-        detections.confidence = detections.confidence[filter_indices]
-        detections.class_id = detections.class_id[filter_indices]
 
         box_annotator = sv.BoundingBoxAnnotator()
         label_annotator = sv.LabelAnnotator()
@@ -265,15 +283,59 @@ class BiteAcquisitionInference:
             def segment(sam_predictor: SamPredictor, image: np.ndarray, xyxy: np.ndarray) -> np.ndarray:
                 sam_predictor.set_image(image)
                 result_masks = []
+                # find the average center of all detected boxes
+                center_xs = []
+                center_ys = []
+                mask_centers = []
+                mask_scores = []
+
                 for box in xyxy:
                     masks, scores, logits = sam_predictor.predict(
                         box=box,
                         multimask_output=True
                     )
+
+                    x_min, y_min, x_max, y_max = box
+                    centroid_x = (x_min + x_max) / 2
+                    centroid_y = (y_min + y_max) / 2
+
+                    # this is ugly
+                    mask_centers.append((centroid_x, centroid_y))
+                    center_xs.append(centroid_x)
+                    center_ys.append(centroid_y)
+
                     index = np.argmax(scores)
                     result_masks.append(masks[index])
-                return np.array(result_masks)
+                    mask_scores.append(scores[index])
 
+                # find the average center of all detected boxes
+                center_x = int(np.mean(center_xs))
+                center_y = int(np.mean(center_ys))
+                total_center = (center_x, center_y)
+                
+
+                # Find the nearest box to the average center
+                distances = [np.linalg.norm(np.array(total_center) - np.array(mask_center)) for mask_center in mask_centers]
+                nearest_box_idx = np.argsort(distances)
+
+
+                # Organize result_masks  and mask_scores according to nearest_box_idx
+                result_masks = np.array(result_masks)[nearest_box_idx]
+                mask_scores = np.array(mask_scores)[nearest_box_idx]
+
+                # get the scores and masks of the three closest boxes to the center
+                closest_masks = result_masks[:2]
+                closest_mask_scores = mask_scores[:2]
+                
+                # organize the first three masks from highest to lowest score
+                score_idx = np.argsort(closest_mask_scores)[::-1]
+
+                closest_masks = closest_masks[score_idx]
+
+                result_masks[:2] = closest_masks
+
+
+                return result_masks
 
             # convert detections to masks
             detections.mask = segment(
@@ -345,6 +407,40 @@ class BiteAcquisitionInference:
 
         return annotated_image, detections, refined_masks, portion_weights, labels
     
+    def remove_large_boxes(self, detections):
+        # Calculate average width and height of detected boxes
+        total_width = 0
+        total_height = 0
+        num_boxes = len(detections.xyxy)
+
+        for box in detections.xyxy:
+            x_min, y_min, x_max, y_max = box        
+            width = x_max - x_min
+            height = y_max - y_min
+            total_width += width
+            total_height += height
+
+        if num_boxes > 0:
+            avg_width = total_width / num_boxes
+            avg_height = total_height / num_boxes
+        else:
+            avg_width = 0
+            avg_height = 0
+        
+        print("Average Width: ", avg_width, "Average Height: ", avg_height)
+
+        # Filter out boxes that are bigger than the average box size
+        filter_indices = [
+            i for i, box in enumerate(detections.xyxy)
+            if (box[2] - box[0]) <=  0.5 * avg_width and (box[3] - box[1]) <= avg_height
+        ]
+
+        detections.xyxy = detections.xyxy[filter_indices]
+        detections.confidence = detections.confidence[filter_indices]
+        detections.class_id = detections.class_id[filter_indices]
+
+        return detections
+    
 
     def clean_labels(self, labels):
         clean_labels = []
@@ -393,7 +489,8 @@ class BiteAcquisitionInference:
 
     
     def get_grasp_action(self, image, masks, categories):
-        self.robot_controller.set_gripper(0.78)
+        # changing to 1 so it closes all the way
+        # self.robot_controller.set_gripper(0.65)
 
         solid_mask = None
         camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
@@ -402,19 +499,22 @@ class BiteAcquisitionInference:
             if category == 'carrot' or category == 'pretzel' or category == 'celery':
                for item_mask in mask:
                     centroid = detect_centroid(item_mask)
+                    #clicks = self.pixel_selector.run(camera_color_data)
+                    #centroid = clicks[0]
 
-                    # get the coordinates of the box and find the angle
-                    p1,p2,box = raf_utils.get_box_points(item_mask)
+                    # get the coordinates of midpoints and points for width calculation
+                    p1,p2,width_p1,width_p2,box = raf_utils.get_box_points(item_mask)
                     yaw_angle = raf_utils.pretzel_angle_between_pixels(p1,p2)
 
-                    print("DETECTED ANGLE: ", yaw_angle)
+                    
 
-                    #vis2 = self.draw_points(camera_color_data, centroid, p1, p2,box)
+                   
+                    vis2 = self.draw_points(camera_color_data, centroid, p1, p2, box)
 
 
                     lower_center = detect_lower_center(item_mask)
                     grasp_point = get_grasp_points(centroid, lower_center)
-                    vis2 = self.draw_points(camera_color_data, centroid, lower_center, grasp_point)
+                   # vis2 = self.draw_points(camera_color_data, centroid, lower_center, grasp_point)
 
 
 
@@ -440,30 +540,70 @@ class BiteAcquisitionInference:
                     #yaw_angle = raf_utils.pretzel_angle_between_pixels(centroid, lower_center)
                     #yaw_angle = raf_utils.pretzel_angle_between_pixels(p1,p2)
 
-                    #print("DETECTED ANGLE: ", yaw_angle)
+                    print("DETECTED ANGLE: ", yaw_angle)
 
+                    
                     angle_of_rotation = (180-yaw_angle) - 30
                     rot = self.get_rotation_matrix(radians(angle_of_rotation))
                     
                     validity, center_point = raf_utils.pixel2World(camera_info_data, centroid[0], centroid[1], camera_depth_data)
 
+                    # for the width calculation
+                    validity, width_point1 = raf_utils.pixel2World(camera_info_data, width_p1[0], width_p1[1], camera_depth_data)
+                    validity, width_point2 = raf_utils.pixel2World(camera_info_data, width_p2[0], width_p2[1], camera_depth_data)
+
+                    # width of object in cm
+                    width = np.linalg.norm(width_point1 - width_point2)
+
+                    # variables for the finger and pads
+                    finger_offset = 0.6 # cm, how much the finger moves inwards from gripper
+                    pad_offset = 0.35 # cm, thickness of a pad on fingertip
+                    insurance = 0.98 # extra space for the object (100 is closed, 0 is open)
+                    close = 1.15 # how much the gripper closes
+
+                    # function transforming width to a gripper value 
+                    grip_val = -7*((width*100)+(2*(finger_offset+pad_offset))) + 100
+                    grip_val = grip_val*insurance
+
+                    # make sure it doesnt exeed kinova limits
+                    if grip_val > 100 - 2*(finger_offset+pad_offset):
+                        grip_val = 100 - 2*(finger_offset+pad_offset)
+                    elif grip_val < 0:
+                        grip_val = 0
+
+                    grip_val = round(grip_val)/100
+
+                    print("width of food item: ", width)
+                    print("Grip Value: ", grip_val)
+                    
+
                     if not validity:
                         print("Invalid centroid")
                         continue
+                    
+                    # we're just saying its 7cm closer than the depth value to account for the gripper mod
+                    center_point[2] -= 0.065
+
+                    print("Im here")
 
                     food_transform = np.eye(4)
                     food_transform[:3,3] = center_point.reshape(1,3)
                     food_transform[:3,:3] = rot
                     logging_transform= food_transform.copy()
+
+                    # gets the position of the camera link relative to the base link via transformation matrix
+                    # multiplies with the camera to food TF
+                    # result: food coordinates and orientation relative to the base link
                     food_base = self.tf_utils.getTransformationFromTF("base_link", "camera_link") @ food_transform
                     
-
+                    
 
                     pose = self.tf_utils.get_pose_msg_from_transform(food_base)
                     
-                    pose.position.y += self.CAMERA_OFFSET
-                    pose.position.z -= self.Z_OFFSET
-                    pose.position.z += self.GRIPPER_OFFSET
+                    pose.position.y += self.CAMERA_OFFSET #.035
+                    pose.position.z -= self.Z_OFFSET #0.0095
+                    pose.position.x += 0.005 #tilt of realsense to kinova moves desire pos down to 0.005
+                    #pose.position.z += self.GRIPPER_OFFSET # 0.0
 
 
                     euler_angles = euler_from_quaternion([pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w])
@@ -482,9 +622,12 @@ class BiteAcquisitionInference:
                     pose.orientation.w = q[3]
 
                     
-
+                    self.robot_controller.set_gripper(grip_val)
+                    rospy.sleep(0.8)
                     
                     move_success =  self.robot_controller.move_to_pose(pose)
+
+                    
 
                     if move_success:
                         k = input("is the robot in the correct position? (y/n): ")
@@ -496,7 +639,7 @@ class BiteAcquisitionInference:
                             sys.exit(1)
                             break
                         
-                        grasp_success = self.robot_controller.set_gripper(0.90)
+                        grasp_success = self.robot_controller.set_gripper(grip_val*close)
 
                         k = input("Did the robot grasp the object? (y/n): ")
                         while k not in ['y', 'n']:
@@ -546,8 +689,9 @@ class BiteAcquisitionInference:
                
 
 
-    def draw_points(self, image, center, lower, mid):
-        
+    def draw_points(self, image, center, lower, mid, box=None):
+        if box is not None:
+            cv2.drawContours(image, [box], 0, (0, 255, 0), 2)
         cv2.circle(image, center, 5, (0,255,0), -1)
         cv2.circle(image, lower, 5, (0,0,255), -1)
         cv2.circle(image, mid, 5, (0,0,255), -1)

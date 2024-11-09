@@ -22,6 +22,7 @@ import math
 from scipy.spatial.transform import Rotation
 from inference_class import BiteAcquisitionInference
 from robot_controller.robot_controller import KinovaRobotController
+from skill_library import SkillLibrary
 
 # Initialize CvBridge
 bridge = CvBridge()
@@ -33,15 +34,21 @@ class CamDetection:
         self.inference_server = BiteAcquisitionInference()
         self.camera = RealSenseROS()
         self.robot_controller = KinovaRobotController()
+        self.skill_library = SkillLibrary()
+
+
+    def mouth_transfer(self):
+        self.skill_library.transfer_to_mouth() 
 
     
     def clear_plate(self):
         camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
         self.robot_controller.reset()
         #items = self.inference_server.recognize_items(camera_color_data)
-        items = ['pretzel']
+        food = ['pretzel']
+        holder = ['bowl']
 
-        self.inference_server.FOOD_CLASSES = items
+        self.inference_server.FOOD_CLASSES = food
 
         
         if camera_color_data is None:
@@ -49,7 +56,7 @@ class CamDetection:
             return
         vis = camera_color_data.copy()
 
-        annotated_image, detections, item_masks, item_portions, item_labels = self.inference_server.detect_items(camera_color_data)
+        annotated_image, detections, item_masks, item_portions, item_labels = self.inference_server.detect_food(camera_color_data)
         cv2.imshow('vis', annotated_image)
         cv2.waitKey(0)
 
@@ -100,6 +107,7 @@ def main():
     rospy.init_node('cam_detection', anonymous=True)
     cd = CamDetection()
     cd.clear_plate()
+    #cd.mouth_transfer()
     # camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
     # cd.grasping_pretzels(camera_color_data, camera_depth_data, camera_info_data, isOpenCv=True)
     try:

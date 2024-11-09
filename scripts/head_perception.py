@@ -46,8 +46,8 @@ if __name__ == '__main__':
                 cv2.circle(camera_color_data, (int(pred[0]), int(pred[1])), 2, (0, 255, 0), -1)
 
         # visualize the landmarks
-        # cv2.imshow("Landmarks", camera_color_data)
-        # cv2.waitKey(1)
+        cv2.imshow("Landmarks", camera_color_data)
+        cv2.waitKey(1)
                 
         if len(preds_3d) == 0:
             print("No valid 3D landmarks")
