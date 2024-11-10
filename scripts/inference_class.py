@@ -134,6 +134,8 @@ class BiteAcquisitionInference:
         self.Z_OFFSET = 0.01
         self.GRIPPER_OFFSET = 0.00 #0.07
         self.CAMERA_OFFSET = 0.042
+
+        self.AUTONOMY = True
         
         
         self.DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -201,40 +203,75 @@ class BiteAcquisitionInference:
             PrepareForNet(),
         ])
 
+
+    def clear_plate(self):
+        camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
+        self.robot_controller.reset()
+        #items = self.recognize_items(camera_color_data)
+        items = ['pretzel']
+
+        self.FOOD_CLASSES = items
+
+        if camera_color_data is None:
+            print("No camera data")
+            return
+        
+        annotated_image, detections, item_masks, item_portions, item_labels = self.detect_food(camera_color_data)
+       
+        if not self.AUTONOMY:
+            vis = camera_color_data.copy()
+            cv2.imshow('vis', annotated_image)
+            cv2.waitKey(0)
+            k = input("Are the detected items correct? (y/n): ")
+            while k not in ['y', 'n']:
+                k = ('Are the detected items correct? (y/n): ')
+                if k == 'e':
+                  sys.exit(1)
+            while k == 'n':
+                sys.exit(1)
+            cv2.destroyAllWindows()
+
+        clean_item_labels, _ = self.clean_labels(item_labels)
+        print("----- Clean Item Labels:", clean_item_labels)
+
+        categories = self.categorize_items(clean_item_labels)
+        
+        print("--------------------")
+        print("Labels:", item_labels)
+        print("Categories:", categories)
+        print("Portions:", item_portions)
+        print("--------------------")
+
+
+        category_list = []
+        labels_list = []
+        per_food_masks = []
+        per_food_portions = []
+
+        for i in range(len(categories)):
+            if labels_list.count(clean_item_labels[i]) == 0:
+                    category_list.append(categories[i])
+                    labels_list.append(clean_item_labels[i])
+                    per_food_masks.append([item_masks[i]])
+                    per_food_portions.append(item_portions[i])
+            else:
+                    index = labels_list.index(clean_item_labels[i])
+                    per_food_masks[index].append(item_masks[i])
+                    per_food_portions[index] += item_portions[i]
+
+        print("Category List:", category_list)
+        print("Labels List:", labels_list)
+        print("Per Food Masks Len:", [len(x) for x in per_food_masks])
+        print("Per Food Portions:", per_food_portions)
+
+        self.get_autonomous_action(annotated_image, camera_color_data, per_food_masks, category_list, labels_list, per_food_portions)
+
+
     def recognize_items(self, image):
         response = self.gpt4v_client.prompt(image).strip()
         items = ast.literal_eval(response)
         return items
     
-    # def detect_bowl(self, image):
-    #     cropped_image = image.copy()
-
-    #     detections = self.grounding_dino_model.predict_with_classes(
-    #         image=cropped_image,
-    #         classes=self.HOLDER_CLASSES,
-    #         box_threshold=self.BOX_THRESHOLD,
-    #         text_threshold=self.TEXT_THRESHOLD,
-    #     )
-
-    #     box_annotator = sv.BoundingBoxAnnotator()
-    #     label_annotator = sv.LabelAnnotator()
-    #     labels = [
-    #         f"{self.HOLDER_CLASSES_CLASSES[class_id]} {confidence:0.2f}" 
-    #         for _, _, confidence, class_id, _, _
-    #         in detections]
-        
-    #     annotated_frame = box_annotator.annotate(scene=cropped_image.copy(), detections=detections)
-    #     annotated_frame = label_annotator.annotate(scene=annotated_frame, detections=detections, labels=labels)
-
-    #     nms_idx = torchvision.ops.nms(
-    #         torch.from_numpy(detections.xyxy), 
-    #         torch.from_numpy(detections.confidence), 
-    #         self.NMS_THRESHOLD
-    #     ).numpy().tolist()
-
-    #     detections.xyxy = detections.xyxy[nms_idx]
-    #     detections.confidence = detections.confidence[nms_idx]
-    #     detections.class_id = detections.class_id[nms_idx]
     
     def detect_food(self, image):
         print("Food Classes", self.FOOD_CLASSES)
@@ -509,7 +546,7 @@ class BiteAcquisitionInference:
                     
 
                    
-                    vis2 = self.draw_points(camera_color_data, centroid, p1, p2, box)
+                   
 
 
                     lower_center = detect_lower_center(item_mask)
@@ -518,18 +555,19 @@ class BiteAcquisitionInference:
 
 
 
-                    
+                    if not self.AUTONOMY:
+                        vis2 = self.draw_points(camera_color_data, centroid, p1, p2, box)
 
-                    cv2.imshow('vis2', vis2)
-                    cv2.waitKey(0)
-                    k = input("Is the grasp point correct? (y/n): ")
-                    while k not in ['y', 'n']:
-                        k = ('Is the grasp point correct? (y/n): ')
-                        if k == 'e':
+                        cv2.imshow('vis2', vis2)
+                        cv2.waitKey(0)
+                        k = input("Is the grasp point correct? (y/n): ")
+                        while k not in ['y', 'n']:
+                            k = ('Is the grasp point correct? (y/n): ')
+                            if k == 'e':
+                                sys.exit(1)
+                        while k == 'n':
                             sys.exit(1)
-                    while k == 'n':
-                        sys.exit(1)
-                    cv2.destroyAllWindows()
+                        cv2.destroyAllWindows()
                     
                    
                     
@@ -552,14 +590,15 @@ class BiteAcquisitionInference:
                     validity, width_point1 = raf_utils.pixel2World(camera_info_data, width_p1[0], width_p1[1], camera_depth_data)
                     validity, width_point2 = raf_utils.pixel2World(camera_info_data, width_p2[0], width_p2[1], camera_depth_data)
 
+                    
                     # width of object in cm
                     width = np.linalg.norm(width_point1 - width_point2)
 
                     # variables for the finger and pads
                     finger_offset = 0.6 # cm, how much the finger moves inwards from gripper
                     pad_offset = 0.35 # cm, thickness of a pad on fingertip
-                    insurance = 0.98 # extra space for the object (100 is closed, 0 is open)
-                    close = 1.15 # how much the gripper closes
+                    insurance = 0.97 # extra space for the object (100 is closed, 0 is open)
+                    close = 1.175 # how much the gripper closes
 
                     # function transforming width to a gripper value 
                     grip_val = -7*((width*100)+(2*(finger_offset+pad_offset))) + 100
@@ -582,9 +621,9 @@ class BiteAcquisitionInference:
                         continue
                     
                     # we're just saying its 7cm closer than the depth value to account for the gripper mod
-                    center_point[2] -= 0.065
+                    center_point[2] -= 0.064
 
-                    print("Im here")
+                    
 
                     food_transform = np.eye(4)
                     food_transform[:3,3] = center_point.reshape(1,3)
@@ -628,16 +667,16 @@ class BiteAcquisitionInference:
                     move_success =  self.robot_controller.move_to_pose(pose)
 
                     
-
-                    if move_success:
-                        k = input("is the robot in the correct position? (y/n): ")
-                        while k not in ['y', 'n']:
-                            k = ('Is the robot in the correct position? (y/n): ')
-                            if k == 'e':
+                    if not self.AUTONOMY:
+                        if move_success:
+                            k = input("is the robot in the correct position? (y/n): ")
+                            while k not in ['y', 'n']:
+                                k = ('Is the robot in the correct position? (y/n): ')
+                                if k == 'e':
+                                    sys.exit(1)
+                            while k == 'n':
                                 sys.exit(1)
-                        while k == 'n':
-                            sys.exit(1)
-                            break
+                                break
                         
                         grasp_success = self.robot_controller.set_gripper(grip_val*close)
 
@@ -646,14 +685,27 @@ class BiteAcquisitionInference:
                             k = ('Did the robot grasp the object? (y/n): ')
                             if k == 'e':
                                 sys.exit(1)
-                        while k == 'n':
-                            sys.exit(1)
-                            break
+                        if k == 'n':
+                            pose.position.z += 0.1
+                            self.robot_controller.move_to_pose(pose)
+                            self.clear_plate()
+                            
+                    else:
+                        grasp_success = self.robot_controller.set_gripper(grip_val*close)
 
-                        pose.position.z += 0.1
-                        self.robot_controller.move_to_pose(pose)
-                        time.sleep(2)
-                        self.robot_controller.move_to_feed_pose()
+                    pose.position.z += 0.15
+                    self.robot_controller.move_to_pose(pose)
+                    time.sleep(3)
+                    isGrasped = self.isObjectGrasped()
+                    print("Is object grasped: ", isGrasped)
+                    if not isGrasped:
+                        self.robot_controller.reset()
+                        time.sleep(3)
+                        self.clear_plate()
+                        break
+                    self.robot_controller.move_to_feed_pose()
+
+                    if not self.AUTONOMY:
                         input("Is user ready? (y/n): ")
                         while k not in ['y', 'n']:
                             k = ('Is the robot in the correct position? (y/n): ')
@@ -663,31 +715,49 @@ class BiteAcquisitionInference:
                             sys.exit(1)
                             break
                         self.robot_controller.set_gripper(0.6)
-                        time.sleep(2)
-                        if self.gpt4v_client.PREFERENCE == "alternate":
-                            if self.gpt4v_client.previous_bite == 'carrot':
-                                self.gpt4v_client.update_history('celery')
-                            else:
-                                self.gpt4v_client.update_history('carrot')
+
+                    time.sleep(2)
+
+                    if self.gpt4v_client.PREFERENCE == "alternate":
+                        if self.gpt4v_client.previous_bite == 'carrot':
+                            self.gpt4v_client.update_history('celery')
+                        else:
+                            self.gpt4v_client.update_history('carrot')
                         self.robot_controller.reset()
 
-                    input("Continue feeding? (y/n): ")
-                    while k not in ['y', 'n']:
-                        k = ('Continue feeding? (y/n): ')
-                        if k == 'e' or k == 'n':
+                    if not self.AUTONOMY:
+                        input("Continue feeding? (y/n): ")
+                        while k not in ['y', 'n']:
+                            k = ('Continue feeding? (y/n): ')
+                            if k == 'e' or k == 'n':
+                                sys.exit(1)
+                                break
+                        while k == 'n':
                             sys.exit(1)
                             break
-                    while k == 'n':
-                        sys.exit(1)
+                        self.robot_controller.reset()
+                        self.clear_plate()
                         break
-                    import cam_detection
-                    cam_detection.CamDetection().clear_plate()
-                    break
+                    else:
+                        time.sleep(3)
+                        self.robot_controller.reset()
+                        self.clear_plate()
+                        break
 
 
-                    
-               
-
+    def isObjectGrasped(self):
+        camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
+        x = 770
+        y = 595
+        validity, points = raf_utils.pixel2World(camera_info_data, x, y, camera_depth_data)
+        if points is not None:
+            points = list(points)
+            if points[2] > 0.200 and points[2] < 0.300:
+                return True
+            else:
+                return False 
+        else: 
+            return False                 
 
     def draw_points(self, image, center, lower, mid, box=None):
         if box is not None:

@@ -24,7 +24,7 @@ class KinovaRobotController(RobotController):
         self.move_to_acq_pose()
         time.sleep(3)
         self.set_gripper(0.0)
-        time.sleep(3)
+        
         
 
     def move_to_feed_pose(self):
@@ -101,7 +101,7 @@ if __name__ == '__main__':
     # robot_controller.move_to_transfer_pose()
     
 
-    robot_controller.set_gripper(0.0)
+    
     # robot_controller.set_joint_position([6.26643082812968, 5.964520505888411, 3.226885713821761, 4.113400641700101, 0.44228980435708964, 6.056389443484003, 1.5805738564210134])
 
     # input('Press enter to reset the robot...')
