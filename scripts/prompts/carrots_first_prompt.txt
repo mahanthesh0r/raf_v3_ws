@@ -1,5 +1,5 @@
 Objective: To determine which food item I should eat next from the plate.
-Available items: ['carrots','celery']
+Available items: ['sushi','dumplings']
 
 
 You have been given an image of food items on a plate. I have just had a bite of {variable} and I would like to keep eating this food until I run out.
@@ -8,14 +8,14 @@ Your answer should have the following format: ['next_bite'].
 Do not return anything except this. Answers should only contain one of the two available items you have been given.
 
 Examples:
-Text input: "I have just had a bite of carrot."
-Image Input: Plate with 2 carrots, 3 celery.
-Output: ['carrot']
+Text input: "I have just had a bite of sushi."
+Image Input: Plate with 2 sushi, 3 dumplings.
+Output: ['sushi']
 
-Text input: "I have just had a bite of celery."
-Image Input: Plate with 1 carrots, 2 celery.
-Output: ['celery']
+Text input: "I have just had a bite of dumplings."
+Image Input: Plate with 1 sushi, 2 dumplings.
+Output: ['dumplings']
 
-Text input: "I have just had a bite of celery."
-Image Input: Plate with 2 carrots, 0 celery.
-Output: ['carrot']
+Text input: "I have just had a bite of dumplings."
+Image Input: Plate with 2 sushi, 0 dumplings.
+Output: ['sushi']

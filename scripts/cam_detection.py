@@ -44,80 +44,14 @@ class CamDetection:
         self.robot_controller.reset()
         self.inference_server.clear_plate()
 
-    
-
-
-    
-    def clear_plate(self):
-        camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
-        self.robot_controller.reset()
-        #items = self.inference_server.recognize_items(camera_color_data)
-        items = ['pretzel']
-        
-
-        self.inference_server.FOOD_CLASSES = items
-
-        
-        if camera_color_data is None:
-            print("No camera data")
-            return
-        vis = camera_color_data.copy()
-
-        annotated_image, detections, item_masks, item_portions, item_labels = self.inference_server.detect_food(camera_color_data)
-        cv2.imshow('vis', annotated_image)
-        cv2.waitKey(0)
-
-        k = input("Are the detected items correct? (y/n): ")
-        while k not in ['y', 'n']:
-             k = ('Are the detected items correct? (y/n): ')
-             if k == 'e':
-                  sys.exit(1)
-        while k == 'n':
-             sys.exit(1)
-        cv2.destroyAllWindows()
-
-        clean_item_labels, _ = self.inference_server.clean_labels(item_labels)
-        print("----- Clean Item Labels:", clean_item_labels)
-
-        categories = self.inference_server.categorize_items(clean_item_labels)
-
-        print("--------------------")
-        print("Labels:", item_labels)
-        print("Categories:", categories)
-        print("Portions:", item_portions)
-        print("--------------------")
-
-        category_list = []
-        labels_list = []
-        per_food_masks = []
-        per_food_portions = []
-
-        for i in range(len(categories)):
-            if labels_list.count(clean_item_labels[i]) == 0:
-                    category_list.append(categories[i])
-                    labels_list.append(clean_item_labels[i])
-                    per_food_masks.append([item_masks[i]])
-                    per_food_portions.append(item_portions[i])
-            else:
-                    index = labels_list.index(clean_item_labels[i])
-                    per_food_masks[index].append(item_masks[i])
-                    per_food_portions[index] += item_portions[i]
-
-        print("Category List:", category_list)
-        print("Labels List:", labels_list)
-        print("Per Food Masks Len:", [len(x) for x in per_food_masks])
-        print("Per Food Portions:", per_food_portions)
-        
-        self.inference_server.get_autonomous_action(annotated_image, camera_color_data, per_food_masks, category_list, labels_list, per_food_portions)
-
+    def cup_joint(self):
+        self.robot_controller.move_to_cup_joint()
+ 
 def main():
     rospy.init_node('cam_detection', anonymous=True)
     cd = CamDetection()
     cd.feeding()
-    
-    #cd.mouth_transfer()
-    # camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
-    # cd.grasping_pretzels(camera_color_data, camera_depth_data, camera_info_data, isOpenCv=True)
+
     try:
         rospy.spin()
     except KeyboardInterrupt:

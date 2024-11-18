@@ -122,8 +122,8 @@ def getOrientation(mask):
 
 def pixel2World(camera_info, image_x, image_y, depth_image, box_width = 2):
 
-    # print("(image_y,image_x): ",image_y,image_x)
-    # print("depth image: ", depth_image.shape[0], depth_image.shape[1])
+    print("(image_y,image_x): ",image_y,image_x)
+    print("depth image: ", depth_image.shape[0], depth_image.shape[1])
 
     if image_y >= depth_image.shape[0] or image_x >= depth_image.shape[1]:
         return False, None

@@ -21,6 +21,7 @@ from math import sqrt, inf, degrees, radians
 from robot_controller.robot_controller import KinovaRobotController
 from pixel_selector import PixelSelector
 import rospy
+import re
 
 
 
@@ -44,7 +45,7 @@ class GPT4VFoodIdentification:
     def __init__(self, api_key, prompt_dir):
         self.api_key = api_key
 
-        self.PREFERENCE = "custom"
+        self.PREFERENCE = "alternate"
         self.history_file_path = "/home/labuser/raf_v3_ws/src/raf_v3/scripts"
         
 
@@ -57,17 +58,7 @@ class GPT4VFoodIdentification:
         
 
 
-        if self.PREFERENCE == "alternate":
-            with open("%s/alternating_prompt.txt"%self.prompt_dir, 'r') as f:
-                self.prompt_text = f.read()
-                self.previous_bite = self.get_history_food()
-                self.prompt_text = self.prompt_text.replace("{variable}", self.previous_bite)
-        elif self.PREFERENCE == "carrots_first":
-            with open("%s/carrots_first_prompt.txt"%self.prompt_dir, 'r') as f:
-                self.prompt_text = f.read()
-        else:
-            with open("%s/custom.txt"%self.prompt_dir, 'r') as f:
-                self.prompt_text = f.read()
+       
 
     def encode_image(self, openCV_image):
         retval, buffer = cv2.imencode('.jpg', openCV_image)
@@ -77,6 +68,7 @@ class GPT4VFoodIdentification:
         with open("%s/history.txt"%self.history_file_path, 'r') as f:
             history = f.read()
             previous_bite = ast.literal_eval(history)
+            print("Previous Bite: ", previous_bite[-1])
             return previous_bite[-1]
         
     def update_history(self, food):
@@ -86,10 +78,24 @@ class GPT4VFoodIdentification:
             previous_bite.append(food)
             with open("%s/history.txt"%self.history_file_path, 'w') as f:
                 f.write(str(previous_bite))
+
+    
             
             
         
     def prompt(self, image):
+        if self.PREFERENCE == "alternate":
+            with open("%s/alternating_prompt.txt"%self.prompt_dir, 'r') as f:
+                self.prompt_text = f.read()
+                self.previous_bite = self.get_history_food()
+                self.prompt_text = self.prompt_text.replace("{variable}", self.previous_bite)
+        elif self.PREFERENCE == "carrots_first":
+             with open("%s/carrots_first_prompt.txt"%self.prompt_dir, 'r') as f:
+                 self.prompt_text = f.read()
+        else:
+            with open("%s/custom.txt"%self.prompt_dir, 'r') as f:
+                self.prompt_text = f.read()
+
         # Getting the base64 string
         base64_image = self.encode_image(image)
 
@@ -136,23 +142,31 @@ class BiteAcquisitionInference:
         self.CAMERA_OFFSET = 0.042
 
         self.AUTONOMY = True
+
+        self.logging_file_path = "/home/labuser/raf_v3_ws/src/raf_v3/scripts"
+        self.isRetryAttempt = False
         
         
         self.DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         self.api_key = os.environ['OPENAI_API_KEY']
         self.gpt4v_client = GPT4VFoodIdentification(self.api_key, '/home/labuser/raf_v3_ws/src/raf_v3/scripts/prompts')
 
-        self.FOOD_CLASSES = ["pretzel"]
-        self.HOLDER_CLASSES = ["bowl"]
+        self.FOOD_CLASSES = []
         # self.BOX_THRESHOLD = 0.036
         # self.TEXT_THRESHOLD = 0.028
         # self.NMS_THRESHOLD = 0.4
 
         # thresholds for pretzels
-        self.BOX_THRESHOLD = 0.03
-        self.TEXT_THRESHOLD = 0.02
+        # self.BOX_THRESHOLD = 0.03
+        # self.TEXT_THRESHOLD = 0.02
+        # self.NMS_THRESHOLD = 0.4
+
+        # thresholds for sushi
+        self.BOX_THRESHOLD = 0.5
+        self.TEXT_THRESHOLD = 0.506
         self.NMS_THRESHOLD = 0.4
 
+        
         self.camera = RealSenseROS()
         self.tf_utils = raf_utils.TFUtils()
         self.robot_controller = KinovaRobotController()
@@ -203,12 +217,41 @@ class BiteAcquisitionInference:
             PrepareForNet(),
         ])
 
+    
+    def logging(self, success=0, retries=0):
+        log_file_path = "%s/logging.txt" % self.logging_file_path
+        
+        # Initialize previous values
+        previous_success = 0
+        previous_retries = 0
+        # Read the current values from the log file
+        try:
+            with open(log_file_path, 'r') as f:
+                content = f.read()
+                match = re.search(r"Success: (\d+), retries: (\d+)", content)
+                if match:
+                    previous_success = int(match.group(1))
+                    previous_retries = int(match.group(2))
+        except FileNotFoundError:
+            # If the file does not exist, start with initial values
+            pass
+
+        # Increment the values
+        new_success = previous_success + success
+        new_retries = previous_retries + retries
+
+        # Write the updated values to the log file
+        with open(log_file_path, 'w') as f:
+            f.write("Success: %d, retries: %d" % (new_success, new_retries))
+
 
     def clear_plate(self):
+        self.FOOD_CLASSES = []
         camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
         self.robot_controller.reset()
-        #items = self.recognize_items(camera_color_data)
-        items = ['pretzel']
+        items = self.recognize_items(camera_color_data)
+        print("Items: ", items)
+        #items = ['sushi']
 
         self.FOOD_CLASSES = items
 
@@ -285,7 +328,7 @@ class BiteAcquisitionInference:
             text_threshold=self.TEXT_THRESHOLD,
         )
 
-        detections = self.remove_large_boxes(detections)
+        #detections = self.remove_large_boxes(detections)
         
 
         box_annotator = sv.BoundingBoxAnnotator()
@@ -332,47 +375,49 @@ class BiteAcquisitionInference:
                         multimask_output=True
                     )
 
-                    x_min, y_min, x_max, y_max = box
-                    centroid_x = (x_min + x_max) / 2
-                    centroid_y = (y_min + y_max) / 2
+                #     x_min, y_min, x_max, y_max = box
+                #     centroid_x = (x_min + x_max) / 2
+                #     centroid_y = (y_min + y_max) / 2
 
-                    # this is ugly
-                    mask_centers.append((centroid_x, centroid_y))
-                    center_xs.append(centroid_x)
-                    center_ys.append(centroid_y)
+                #     # this is ugly
+                #     mask_centers.append((centroid_x, centroid_y))
+                #     center_xs.append(centroid_x)
+                #     center_ys.append(centroid_y)
 
                     index = np.argmax(scores)
                     result_masks.append(masks[index])
-                    mask_scores.append(scores[index])
+                #     mask_scores.append(scores[index])
 
-                # find the average center of all detected boxes
-                center_x = int(np.mean(center_xs))
-                center_y = int(np.mean(center_ys))
-                total_center = (center_x, center_y)
+                # # find the average center of all detected boxes
+                # center_x = int(np.mean(center_xs))
+                # center_y = int(np.mean(center_ys))
+                # total_center = (center_x, center_y)
                 
 
-                # Find the nearest box to the average center
-                distances = [np.linalg.norm(np.array(total_center) - np.array(mask_center)) for mask_center in mask_centers]
-                nearest_box_idx = np.argsort(distances)
+                # # Find the nearest box to the average center
+                # distances = [np.linalg.norm(np.array(total_center) - np.array(mask_center)) for mask_center in mask_centers]
+                # nearest_box_idx = np.argsort(distances)
 
 
-                # Organize result_masks  and mask_scores according to nearest_box_idx
-                result_masks = np.array(result_masks)[nearest_box_idx]
-                mask_scores = np.array(mask_scores)[nearest_box_idx]
+                # # Organize result_masks  and mask_scores according to nearest_box_idx
+                # result_masks = np.array(result_masks)[nearest_box_idx]
+                # mask_scores = np.array(mask_scores)[nearest_box_idx]
 
-                # get the scores and masks of the three closest boxes to the center
-                closest_masks = result_masks[:2]
-                closest_mask_scores = mask_scores[:2]
+                # # get the scores and masks of the three closest boxes to the center
+                # closest_masks = result_masks[:2]
+                # closest_mask_scores = mask_scores[:2]
                 
-                # organize the first three masks from highest to lowest score
-                score_idx = np.argsort(closest_mask_scores)[::-1]
+                # # organize the first three masks from highest to lowest score
+                # score_idx = np.argsort(closest_mask_scores)[::-1]
 
-                closest_masks = closest_masks[score_idx]
+                # closest_masks = closest_masks[score_idx]
 
-                result_masks[:2] = closest_masks
+                # result_masks[:2] = closest_masks
 
 
-                return result_masks
+                # return result_masks
+
+                return np.array(result_masks)
 
             # convert detections to masks
             detections.mask = segment(
@@ -504,12 +549,17 @@ class BiteAcquisitionInference:
                     categories.append('pretzel')
                 elif label in ['celery']:
                     categories.append('celery')
+                elif label in ['sushi']:
+                    categories.append('sushi')
+                elif label in ['dumplings']:
+                    categories.append('dumplings')
                 
 
         return categories
     
     def get_autonomous_action(self, annotated_image, image, masks, categories, labels, portions, continue_food_label = None):
         vis = image.copy()
+
 
         if continue_food_label is not None:
             food_to_consider = [i for i in range(len(labels)) if labels[i] == continue_food_label]
@@ -520,7 +570,7 @@ class BiteAcquisitionInference:
         print('Food to consider: ', food_to_consider)
 
         for idx in food_to_consider:
-            if categories[idx] == 'carrot' or categories[idx] == 'pretzel' or categories[idx] == 'celery':
+            if categories[idx] == 'carrot' or categories[idx] == 'pretzel' or categories[idx] == 'celery' or categories[idx] == 'sushi' or categories[idx] == 'dumplings':
                 self.get_grasp_action(image, masks, categories)
 
 
@@ -533,8 +583,9 @@ class BiteAcquisitionInference:
         camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
 
         for i, (category, mask) in enumerate(zip(categories, masks)):
-            if category == 'carrot' or category == 'pretzel' or category == 'celery':
+            if category == 'carrot' or category == 'pretzel' or category == 'celery' or category == 'sushi' or category == 'dumplings':
                for item_mask in mask:
+                    
                     centroid = detect_centroid(item_mask)
                     #clicks = self.pixel_selector.run(camera_color_data)
                     #centroid = clicks[0]
@@ -590,15 +641,17 @@ class BiteAcquisitionInference:
                     validity, width_point1 = raf_utils.pixel2World(camera_info_data, width_p1[0], width_p1[1], camera_depth_data)
                     validity, width_point2 = raf_utils.pixel2World(camera_info_data, width_p2[0], width_p2[1], camera_depth_data)
 
-                    
+                    print("Width Point 1: ", width_point1)
+                    print("Width Point 2: ", width_point2)
                     # width of object in cm
                     width = np.linalg.norm(width_point1 - width_point2)
 
                     # variables for the finger and pads
                     finger_offset = 0.6 # cm, how much the finger moves inwards from gripper
                     pad_offset = 0.35 # cm, thickness of a pad on fingertip
-                    insurance = 0.97 # extra space for the object (100 is closed, 0 is open)
-                    close = 1.175 # how much the gripper closes
+                    insurance = 0.975 # extra space for the object (100 is closed, 0 is open)
+                    #close = 1.175 # how much the gripper closes
+                    close = 1.32 #for sushi
 
                     # function transforming width to a gripper value 
                     grip_val = -7*((width*100)+(2*(finger_offset+pad_offset))) + 100
@@ -621,7 +674,8 @@ class BiteAcquisitionInference:
                         continue
                     
                     # we're just saying its 7cm closer than the depth value to account for the gripper mod
-                    center_point[2] -= 0.064
+                    # center_point[2] -= 0.062
+                    center_point[2] -= 0.055 # for sushi
 
                     
 
@@ -701,8 +755,9 @@ class BiteAcquisitionInference:
                     if not isGrasped:
                         self.robot_controller.reset()
                         time.sleep(3)
+                        self.isRetryAttempt = True
                         self.clear_plate()
-                        break
+                        return
                     self.robot_controller.move_to_feed_pose()
 
                     if not self.AUTONOMY:
@@ -717,12 +772,13 @@ class BiteAcquisitionInference:
                         self.robot_controller.set_gripper(0.6)
 
                     time.sleep(2)
+                    
 
                     if self.gpt4v_client.PREFERENCE == "alternate":
-                        if self.gpt4v_client.previous_bite == 'carrot':
-                            self.gpt4v_client.update_history('celery')
+                        if self.gpt4v_client.previous_bite == 'dumplings':
+                            self.gpt4v_client.update_history('sushi')
                         else:
-                            self.gpt4v_client.update_history('carrot')
+                            self.gpt4v_client.update_history('dumplings')
                         self.robot_controller.reset()
 
                     if not self.AUTONOMY:
@@ -740,15 +796,26 @@ class BiteAcquisitionInference:
                         break
                     else:
                         time.sleep(3)
+                        #self.robot_controller.set_gripper(0.6)
                         self.robot_controller.reset()
+                        if self.isRetryAttempt:
+                            self.logging(retries=1)
+                            self.isRetryAttempt = False
+                        else:
+                            self.logging(success=1)
                         self.clear_plate()
                         break
 
 
     def isObjectGrasped(self):
         camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
+        #For pretzels
         x = 770
         y = 595
+
+        #For almonds
+        # x = 766
+        # y = 562
         validity, points = raf_utils.pixel2World(camera_info_data, x, y, camera_depth_data)
         if points is not None:
             points = list(points)

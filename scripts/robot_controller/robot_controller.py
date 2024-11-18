@@ -16,16 +16,20 @@ class KinovaRobotController(RobotController):
         self.DEFAULT_FORCE_THRESHOLD = [30.0, 30.0, 30.0, 30.0, 30.0, 30.0]
         self.acq_pos = [-0.000, 0.000, -1.571, 0.000, -1.571, 1.571]
         self.transfer_pos = [3.9634926355200855, 5.7086929905176556, 4.912630464851094, 4.31408101511415, 4.877527871154977, 5.429743910562832, 3.8112093559638285]
-        self.feed_joint_pose = [1.010, -0.034, -1.849, 1.192, -1.976, -0.356]
+        #self.feed_joint_pose = [1.010, -0.034, -1.849, 1.192, -1.976, -0.356]
         #self.feed_joint_pose = [0.638, 0.0083, -1.711, 1.211, -2.090, -0.407]
-        #self.feed_joint_pose = [0.747, -0.003, -1.878, 1.411, -2.100, -0.256]
+        self.feed_joint_pose = [0.979932562, 0.255900175, 4.526441602, 1.41794039, 4.205109033, 5.853851764]
+        self.cup_joints = [4.446086643, 1.13195074, 5.0282936, 3.72753459, 2.099927796, 2.50452404079427] 
+
 
     def reset(self):
         self.move_to_acq_pose()
         time.sleep(3)
         self.set_gripper(0.0)
         
-        
+    def move_to_cup_joint(self):
+        print('Moving to cup joint')
+        self.set_joint_position(self.cup_joints)
 
     def move_to_feed_pose(self):
         print('Moving to feed pose')
