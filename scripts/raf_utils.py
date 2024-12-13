@@ -7,6 +7,7 @@ from scipy.spatial.transform import Rotation
 from geometry_msgs.msg import Pose, PoseStamped
 from geometry_msgs.msg import Pose, TransformStamped
 from math import atan2, cos, sin, sqrt, pi
+import time
 
 def angle_between_pixels(source_px, target_px, image_width, image_height, orientation_symmetry = False):
     def angle_between(p1, p2):
@@ -33,6 +34,7 @@ def get_box_points(mask):
     # get the box points of the rectangle and convert to integers
     box = cv2.boxPoints(rect)
     box = np.int0(box)
+    
 
     if np.linalg.norm(box[0]-box[1]) < np.linalg.norm(box[1]-box[2]):
         # then the longer side is the one between the first and second points
@@ -58,6 +60,93 @@ def get_box_points(mask):
     p2 = tuple(map(int, p2))
 
     return p1, p2, width_p1, width_p2, box
+
+def get_width_points(grasp_point,mask):
+    p1,p2,width_p1,width_p2,box = get_box_points(mask)
+    # get distance from upper midpoint to grasp point
+    #dist = np.linalg.norm(np.array(p1) - np.array(grasp_point))
+    dist = tuple(a-b for a,b in zip(p1, grasp_point))
+    # get locations of the grasp points on the rotated rectangle
+    grasp_point1 = tuple(a-b for a,b in zip(width_p1, dist))
+    grasp_point2 = tuple(a-b for a,b in zip(width_p2, dist))
+    # draw the grasp line
+    # cv2.line(mask, tuple(grasp_point1), tuple(grasp_point2), 255, 2)
+    return grasp_point1, grasp_point2
+    
+
+
+
+
+# function to get the points of the "top" and "bottom" of the box
+def get_cup_box_points(mask):
+    contours,hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    if contours:
+        largest_contour = max(contours, key=cv2.contourArea)
+
+
+    # get a rotated rectangle around the segmentation
+    rect = cv2.minAreaRect(largest_contour)
+    # get the box points of the rectangle and convert to integers
+    box = cv2.boxPoints(rect)
+    box = np.int0(box)
+    
+
+    if np.linalg.norm(box[0]-box[1]) < np.linalg.norm(box[1]-box[2]):
+        # then the longer side is the one between the first and second points
+        # i want the midpoints between the widths
+        p1 = (box[1] + box[2]) / 2
+        p2 = (box[3] + box[0]) / 2
+        
+        # grab points for width calculation
+        width_p1 = box[1]
+        width_p2 = box[2]
+
+        # get the length of the shorter side
+    else:
+        p1 = (box[0] + box[1]) / 2
+        p2 = (box[2] + box[3]) / 2
+
+        # grab points for width calculation
+        width_p1 = box[0]
+        width_p2 = box[1]
+    
+    # Convert midpoints to integers
+    p1 = tuple(map(int, p1))
+    p2 = tuple(map(int, p2))
+
+    return p1, p2, width_p1, width_p2, box
+
+def get_cup_box_points_v2(mask):
+     # Find contours in the mask
+    contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    if not contours:
+        return None, None, None, None, None
+
+    # Get the largest contour
+    largest_contour = max(contours, key=cv2.contourArea)
+
+    # Calculate the centroid of the largest contour
+    M = cv2.moments(largest_contour)
+    if M["m00"] == 0:
+        return None, None, None, None, None
+    centroid_x = int(M["m10"] / M["m00"])
+    centroid_y = int(M["m01"] / M["m00"])
+
+    # Find the farthest points to the right and left along the horizontal axis
+    far_right = max(largest_contour, key=lambda point: point[0][0] if abs(point[0][1] - centroid_y) < 5 else -np.inf)
+    far_left = min(largest_contour, key=lambda point: point[0][0] if abs(point[0][1] - centroid_y) < 5 else np.inf)
+
+    # Convert points to tuples
+    far_right_point = (far_right[0][0], centroid_y)
+    far_left_point = (far_left[0][0], centroid_y)
+
+    # Draw points on the mask
+    mask_with_points = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+    cv2.circle(mask_with_points, far_right_point, 5, (0, 0, 255), -1)  # Red point
+    cv2.circle(mask_with_points, far_left_point, 5, (0, 0, 255), -1)   # Red point
+    cv2.circle(mask_with_points, (centroid_x, centroid_y), 5, (255, 0, 0), -1)  # Blue point for centroid
+
+    return far_right_point, far_left_point, (centroid_x, centroid_y), mask_with_points
 
 
 # custom one to return angle between 0 and 180 degress
@@ -142,6 +231,7 @@ def pixel2World(camera_info, image_x, image_y, depth_image, box_width = 2):
                     depth += [pixel_depth]
 
         if len(depth) == 0:
+            print("No valid depth values found")
             return False, None
 
         depth = np.mean(np.array(depth))
@@ -157,6 +247,8 @@ def pixel2World(camera_info, image_x, image_y, depth_image, box_width = 2):
     world_x = (depth / fx) * (image_x - cx)
     world_y = (depth / fy) * (image_y - cy)
     world_z = depth
+
+
 
     return True, np.array([world_x, world_y, world_z])
 
@@ -181,6 +273,21 @@ def validate_with_user(question):
         return True
     else:
         return False
+    
+def get_category_from_label(food_classes):
+    for food_class in food_classes:
+        if food_class in ['carrot', 'celery', 'small rob pretzel']:
+            return 'plate_snack'
+        elif food_class in ['almonds', 'pretzel nuggets', 'grapes', 'french fries', 'fruits']:
+            return 'bowl_snack'
+        elif food_class in ['cup', 'bottle']:
+            return 'drink'
+        elif food_class in ['sushi', 'dumplings', 'chicken tenders']:
+            return 'meal'
+        
+
+
+
     
 
 

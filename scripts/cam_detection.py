@@ -35,6 +35,42 @@ class CamDetection:
         self.camera = RealSenseROS()
         self.robot_controller = KinovaRobotController()
         self.skill_library = SkillLibrary()
+          # Create a stack to store commands
+        self.command_stack = []
+
+         # Subscribe to the speech_commands topic
+        rospy.Subscriber('speech_commands', String, self.command_callback)
+
+
+    def command_callback(self, msg):
+        """
+        Callback function to handle incoming commands.
+        msg: The message received from the speech_commands topic.
+        """
+        command = msg.data
+        rospy.loginfo("Received command: %s", command)
+        
+
+        # Push the command to the stack
+        self.command_stack.append(command)
+        
+
+    def get_command(self):
+        """
+        Method to get the current command stack.
+        """
+        if self.command_stack:
+            return self.command_stack[-1]
+        else:
+            return None
+    
+    def clear_stack(self):
+        """
+        Method to clear the command stack.
+        """
+        self.command_stack.clear()
+        rospy.loginfo("Command stack cleared.")
+
 
 
     def mouth_transfer(self):
@@ -43,14 +79,45 @@ class CamDetection:
     def feeding(self):
         self.robot_controller.reset()
         self.inference_server.clear_plate()
-
+    
+    def drinking(self):
+        self.robot_controller.move_to_cup_joint()
+        rospy.sleep(4)
+        self.inference_server.clear_plate(cup=True)
+    
     def cup_joint(self):
         self.robot_controller.move_to_cup_joint()
+
+    def camera_visualize(self):
+        camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
+        if camera_color_data is None:
+            print("No camera data")
+            return
+        vis = camera_color_data.copy()
+        cv2.imshow('vis', vis)
+        cv2.waitKey(0)
  
 def main():
     rospy.init_node('cam_detection', anonymous=True)
     cd = CamDetection()
+    # while True:
+        
+    #     if cd.get_command() == 'stop':
+    #         cd.clear_stack()
+    #         sys.exit(1)
+    #         return
+    #     elif cd.get_command() == 'feed':
+    #         print("Feeding")
+    #         cd.clear_stack()
+    #         cd.feeding()
+    #     elif cd.get_command() == 'drink':
+    #         cd.clear_stack()
+    #         cd.drinking()
+
+        
+    #cd.drinking()
     cd.feeding()
+    #cd.camera_visualize()
 
     try:
         rospy.spin()

@@ -19,7 +19,9 @@ class KinovaRobotController(RobotController):
         #self.feed_joint_pose = [1.010, -0.034, -1.849, 1.192, -1.976, -0.356]
         #self.feed_joint_pose = [0.638, 0.0083, -1.711, 1.211, -2.090, -0.407]
         self.feed_joint_pose = [0.979932562, 0.255900175, 4.526441602, 1.41794039, 4.205109033, 5.853851764]
-        self.cup_joints = [4.446086643, 1.13195074, 5.0282936, 3.72753459, 2.099927796, 2.50452404079427] 
+        self.cup_joints = [4.446086643, 1.13195074, 5.0282936, 3.72753459, 2.099927796, 1.948415764] 
+        self.sip_pose = [0.914517621, 0.205128547, 4.589919227, 4.33155814, 2.030097173, 2.809875376]
+        self.multi_bite_transfer = [0.74991562, 0.052394784, 4.51097798, 1.31203381, 4.214306918, 5.876802844]
 
 
     def reset(self):
@@ -34,6 +36,14 @@ class KinovaRobotController(RobotController):
     def move_to_feed_pose(self):
         print('Moving to feed pose')
         self.set_joint_position(self.feed_joint_pose)
+
+    def move_to_sip_pose(self):
+        print('Moving to sip pose')
+        self.set_joint_position(self.sip_pose)
+
+    def move_to_multi_bite_transfer(self):
+        print('Moving to multi bite transfer')
+        self.set_joint_position(self.multi_bite_transfer)
 
     def move_to_pose(self, pose):
         print("Calling set_pose with pose: ", pose)

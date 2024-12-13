@@ -126,8 +126,12 @@ def get_grasp_points(center, lower_center):
     return (int((center[0] + lower_center[0]) / 2) , int((center[1] + lower_center[1]) / 2))
 
 
-
-
+def mask_width_points(p1,p2,mask):
+    p1 = np.array(p1)
+    p2 = np.array(p2)
+    wp1 = proj_pix2mask(p1, mask)
+    wp2 = proj_pix2mask(p2, mask)
+    return wp1, wp2
 
 
 

@@ -75,4 +75,27 @@ class SkillLibrary:
 
         input("Press ENTER to move back to before transfer pose.")
         self.robot_controller.move_to_transfer_pose()
+
+
+    def getGripperWidth(self, width_point1, width_point2, finger_offset=0.6, pad_offset=0.35, insurance=0.975, close=1.175):
+        #width of item in cm
+        width =  np.linalg.norm(width_point1 - width_point2)
+        # function transforming width to a gripper value
+        grip_val = -7*((width*100)+(2*(finger_offset+pad_offset))) + 100
+        grip_val = grip_val*insurance
+
+        # make sure it doesn't exceed kinova limits
+        if grip_val > 100 - 2*(finger_offset+pad_offset):
+            grip_val = 100 - 2*(finger_offset+pad_offset)
+        elif grip_val < 0:
+            grip_val = 0
         
+        grip_val = round(grip_val)/100
+
+        return grip_val * close
+
+
+
+   
+
+
