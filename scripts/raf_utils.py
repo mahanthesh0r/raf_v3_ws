@@ -286,6 +286,20 @@ def get_category_from_label(food_classes):
             return 'meal'
         
 
+def organize_food_data(self, categories, clean_item_labels, item_masks, item_portions):
+    category_list, labels_list, per_food_masks, per_food_portions = [], [], [], []
+    for i in range(len(categories)):
+            if labels_list.count(clean_item_labels[i]) == 0:
+                category_list.append(categories[i])
+                labels_list.append(clean_item_labels[i])
+                per_food_masks.append([item_masks[i]])
+                per_food_portions.append(item_portions[i])
+            else:
+                index = labels_list.index(clean_item_labels[i])
+                per_food_masks[index].append(item_masks[i])
+                per_food_portions[index] += item_portions[i]
+    return category_list, labels_list, per_food_masks, per_food_portions    
+
 
 
     

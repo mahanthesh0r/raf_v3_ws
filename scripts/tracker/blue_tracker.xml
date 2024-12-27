@@ -1,0 +1,6 @@
+<tracker>
+    <color>
+        <name>blue</name>
+        <hue_range>110,130</hue_range> <!-- Adjust for your blue object -->
+    </color>
+</tracker>

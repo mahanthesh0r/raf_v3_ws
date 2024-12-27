@@ -92,7 +92,7 @@ class SkillLibrary:
         
         grip_val = round(grip_val)/100
 
-        return grip_val * close
+        return grip_val
 
 
 

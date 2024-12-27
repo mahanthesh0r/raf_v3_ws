@@ -89,13 +89,18 @@ class CamDetection:
         self.robot_controller.move_to_cup_joint()
 
     def camera_visualize(self):
-        camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
-        if camera_color_data is None:
-            print("No camera data")
-            return
-        vis = camera_color_data.copy()
-        cv2.imshow('vis', vis)
-        cv2.waitKey(0)
+        while True:
+            camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
+            if camera_color_data is None:
+                print("No camera data")
+                return
+            vis = camera_color_data.copy()
+            cv2.imshow('vis', vis)
+            # Break the loop if 'q' is pressed
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+
+        cv2.destroyAllWindows()
  
 def main():
     rospy.init_node('cam_detection', anonymous=True)
@@ -116,8 +121,8 @@ def main():
 
         
     #cd.drinking()
-    cd.feeding()
-    #cd.camera_visualize()
+    #cd.feeding()
+    cd.camera_visualize()
 
     try:
         rospy.spin()
