@@ -1,0 +1,39 @@
+<launch>
+    <!-- launch file to run all of the experiment nodes at once -->
+
+
+  <!-- Robot namespace -->
+    <arg name="robot_name" default="my_gen3"/>
+    <arg name="start_delay_seconds" default="0"/>
+
+        <!-- Gen3 specific arguments required by Kortex API for instantiating a private communication session -->
+    <arg name="ip_address" default="192.168.1.10" doc="IP address for TCP/UDP comms"/>
+    <arg name="username" default="admin" doc="Username for kortex session"/>
+    <arg name="password" default="admin" doc="Password for kortex session"/>
+    <arg name="api_session_inactivity_timeout_ms" default="35000"/> <!--milliseconds-->
+    <arg name="api_connection_inactivity_timeout_ms" default="20000"/> <!--milliseconds-->
+    <arg name="dof" default="6"/> <!--degrees of freedom-->
+
+    <node name="controller" pkg="raf_v3" type="controller" ns="$(arg robot_name)" output="screen">
+        <param name="ip_address" value="$(arg ip_address)"/>
+        <param name="username" value="$(arg username)"/>
+        <param name="password" value="$(arg password)"/>
+        <param name="api_session_inactivity_timeout_ms" value="$(arg api_session_inactivity_timeout_ms)"/>
+        <param name="api_connection_inactivity_timeout_ms" value="$(arg api_connection_inactivity_timeout_ms)"/>
+    </node>
+
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find kortex_description)/robots/gen3_robotiq_2f_140.xacro dof:=$(arg dof) sim:=false vision:=false" />
+
+    <!-- start the realsense node-->
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+        <arg name="align_depth" value="true"/>
+    </include>
+
+    <!-- start the kortex driver-->
+    <include file="$(find kortex_driver)/launch/kortex_driver.launch">
+        <arg name="dof" value="6"/>
+        <arg name="gripper" value="robotiq_2f_140"/>
+    </include>
+
+
+</launch>
