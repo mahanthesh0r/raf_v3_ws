@@ -86,7 +86,7 @@ class GPT4VFoodIdentification:
              with open("%s/carrots_first_prompt.txt"%self.prompt_dir, 'r') as f:
                  self.prompt_text = f.read()
         else:
-            with open("%s/custom.txt"%self.prompt_dir, 'r') as f:
+            with open("%s/identification.txt"%self.prompt_dir, 'r') as f:
                 self.prompt_text = f.read()
 
         # Getting the base64 string
@@ -129,8 +129,8 @@ class BiteAcquisitionInference:
 
         self.Z_OFFSET = 0.01
         self.GRIPPER_OFFSET = 0.00 #0.07
-        self.CAMERA_OFFSET = 0.042
-        self.AUTONOMY = True
+        self.CAMERA_OFFSET = 0.04
+        self.AUTONOMY = False
         self.isPlate = True
         self.logging_file_path = "/home/labuser/raf_v3_ws/src/raf_v3/scripts"
         self.isRetryAttempt = False
@@ -235,13 +235,30 @@ class BiteAcquisitionInference:
         self.listen_for_commands(3)
         self.FOOD_CLASSES = []
         camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
-        #items = self.recognize_items(camera_color_data)
         if not cup:
             self.robot_controller.reset()
-            items = ['chicken tenders']
+            items = self.recognize_items(camera_color_data)
+            #items = ['gummy bears']
+            items = raf_utils.randomize_selection(items)
+
+            if items is not None:
+                print("Items: ", items)
+                if items != [] and 'watermelon' in items:
+                    items = ['red cube' if item == 'watermelon' else item for item in items]
+                if items != [] and 'chocolate' in items:
+                    items = ['brown cube' if item == 'chocolate' else item for item in items]
+            
+            # added by jake
+            else:
+                print("No food items detected!")
+                sys.exit(1)
+
+            
+            #items = ['brown cube','grapes']
         else:
             self.robot_controller.move_to_cup_joint()
             rospy.sleep(5)
+            #items = self.recognize_items(camera_color_data)
             items = ['cup']
 
         print("Items: ", items)
@@ -311,17 +328,18 @@ class BiteAcquisitionInference:
         print("Food Classes", self.FOOD_CLASSES)
         cropped_image = image.copy()
         category = raf_utils.get_category_from_label(self.FOOD_CLASSES)
+        print("Category: ", category)
 
         if category == 'plate_snack':
             self.BOX_THRESHOLD = 0.3
             self.TEXT_THRESHOLD = 0.3
             self.NMS_THRESHOLD = 0.4
         elif category == 'bowl_snack':
+            # if cropping, all threshholds should be higher
             self.BOX_THRESHOLD = 0.036
             self.TEXT_THRESHOLD = 0.028
             self.NMS_THRESHOLD = 0.4 
-
-        elif category == 'meal':
+        elif category == 'meal': #or category == 'special_meal':
             self.BOX_THRESHOLD = 0.5
             self.TEXT_THRESHOLD = 0.506
             self.NMS_THRESHOLD = 0.4
@@ -329,7 +347,21 @@ class BiteAcquisitionInference:
             self.BOX_THRESHOLD = 0.3
             self.TEXT_THRESHOLD = 0.3
             self.NMS_THRESHOLD = 0.4
+        elif category == 'test':
+            self.BOX_THRESHOLD = 0.3
+            self.TEXT_THRESHOLD = 0.3
+            self.NMS_THRESHOLD = 0.4
+        elif category == 'special_meal':
+            self.BOX_THRESHOLD = 0.3
+            self.TEXT_THRESHOLD = 0.3
+            self.NMS_THRESHOLD = 0.4
+        elif category == 'pasta':
+            self.BOX_THRESHOLD = 0.01
+            self.TEXT_THRESHOLD = 0.01
+            self.NMS_THRESHOLD = 0.4 
 
+
+        print("Thresholds: ", self.BOX_THRESHOLD, self.TEXT_THRESHOLD, self.NMS_THRESHOLD)
 
         detections = self.grounding_dino_model.predict_with_classes(
             image=cropped_image,
@@ -338,8 +370,14 @@ class BiteAcquisitionInference:
             text_threshold=self.TEXT_THRESHOLD,
         )
 
-        if not self.isPlate and not isCup:
-            detections = self.remove_large_boxes(detections)
+        # if not self.isPlate and not isCup:
+        #detections = self.remove_large_boxes(detections)
+        
+        # make sure plate isnt detected as food item
+        # if not isCup and category != 'pasta':
+        #     detections = self.remove_plate(detections)
+        # elif category == 'pasta':
+        #     detections = self.remove_plate(detections, food_container='bowl')
         
 
         box_annotator = sv.BoundingBoxAnnotator()
@@ -376,6 +414,8 @@ class BiteAcquisitionInference:
                 def segment(sam_predictor: SamPredictor, image: np.ndarray, xyxy: np.ndarray) -> np.ndarray:
                     sam_predictor.set_image(image)
                     result_masks = []
+
+                    print("picking towards center")
                     # find the average center of all detected boxes
                     center_xs = []
                     center_ys = []                      
@@ -548,6 +588,36 @@ class BiteAcquisitionInference:
 
         return detections
     
+    # ensure that the plate is not detected as an object
+    def remove_plate(self, detections, food_container='plate'):
+
+        # size of plate bounding box when in overlook position
+        plate_area = 362964
+        
+        if food_container != 'plate':
+            # heinens box size
+            plate_area = 100000
+        
+        print("Plate Area: ", plate_area)
+        # tolerance of how close the area can be to the plate area (percentage)
+        large_box_tolerance = 0.65
+
+        # Filter out boxes that are plate sized
+        filter_indices = [
+            i for i, box in enumerate(detections.xyxy)
+            if abs(plate_area-abs((box[2] - box[0]) * (box[3] - box[1]))) >= plate_area * large_box_tolerance
+        ]
+
+        print("Plate Filter Indices: ", filter_indices)
+        detections.xyxy = detections.xyxy[filter_indices]
+        detections.confidence = detections.confidence[filter_indices]
+        detections.class_id = detections.class_id[filter_indices]
+
+
+        return detections
+
+                
+    
 
     def clean_labels(self, labels):
         clean_labels = []
@@ -570,12 +640,16 @@ class BiteAcquisitionInference:
             for label in labels:
                 if label in ['carrot', 'celery', 'small rod pretzel']:
                     categories.append('plate_snack')
-                elif label in ['almonds', 'pretzel nuggets', 'grapes', 'french fries', 'fruits']:
+                elif label in ['almonds', 'pretzel bites', 'green grapes', 'french fries', 'fruits','gummy bears', 'gummy worms', 'brown cube','red cube', 'pretzel rods','penne pasta','tomato','green vegetable', 'chicken nugget']:
                     categories.append('bowl_snack')
-                elif label in ['sushi', 'dumplings', 'chicken tenders']:
+                elif label in ['dumplings', 'chicken tenders','egg rolls']:
                     categories.append('meal')
                 elif label in ['cup', 'bottle']:
                     categories.append('drink')
+                elif label in ['sushi', 'donut']:
+                    categories.append('special_meal')
+                elif label in ['penne pasta','tomato','green vegetable']:
+                    categories.append('pasta') 
                 
         return categories
     
@@ -602,16 +676,20 @@ class BiteAcquisitionInference:
             return
 
         for idx in food_to_consider:
-            if categories[idx] == 'plate_snack' or categories[idx] == 'meal':
+            if categories[idx] == 'plate_snack':
+                self.grasp_plate_snack(image, masks, categories,close=1.12)
+            elif categories[idx] == 'meal':
                 self.grasp_plate_snack(image, masks, categories)
             elif categories[idx] == 'bowl_snack' :
                 self.get_grasp_action(image, masks, categories)
             elif categories[idx] == 'drink':
                self.grasp_drink(image, masks, categories)
+            elif categories[idx] == 'special_meal' or categories[idx] == 'pasta':
+                self.get_grasp_action(image, masks, categories, close=1.27)
 
     
 
-    def grasp_plate_snack(self, image, masks, categories, finger_offset=0.6, pad_offset=0.35, insurance=0.975, close=1.275):
+    def grasp_plate_snack(self, image, masks, categories, finger_offset=0.6, pad_offset=0.35, insurance=0.985, close=1.26):
         camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
         for i, (category, mask) in enumerate(zip(categories, masks)):
             if category == 'plate_snack' or category == 'meal':
@@ -636,13 +714,22 @@ class BiteAcquisitionInference:
                             if not raf_utils.validate_with_user("Is the robot in the correct position? "):
                                 sys.exit(1)
                                 break
+                        #go down to grasp plate stack
+                        pose.position.z -= 0.017
+                        self.robot_controller.move_to_pose(pose)
+                        rospy.sleep(1)
                         grasp_success = self.robot_controller.set_gripper(grip_val*close)
                         if not raf_utils.validate_with_user("Did the robot grasp the object? "):
                             pose.position.z += 0.1
                             self.robot_controller.move_to_pose(pose)
                             self.clear_plate()
                     else:
+                        #go down to grasp plate stack
+                        pose.position.z -= 0.017
+                        self.robot_controller.move_to_pose(pose)
+                        rospy.sleep(1)
                         grasp_success = self.robot_controller.set_gripper(grip_val*close)
+                        
                     pose.position.z += 0.15
                     self.robot_controller.move_to_pose(pose)
                     time.sleep(2)
@@ -696,15 +783,16 @@ class BiteAcquisitionInference:
                         self.clear_plate()
                         break
 
-    
-    def get_grasp_action(self, image, masks, categories, finger_offset=0.6, pad_offset=0.35, insurance=0.975, close=1.275):
+    # change here
+    # changing close from 1.12 to 1.2  for pasta
+    def get_grasp_action(self, image, masks, categories, finger_offset=0.6, pad_offset=0.35, insurance=0.985, close=1.185):
         solid_mask = None
         camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
 
         for i, (category, mask) in enumerate(zip(categories, masks)):
-            if category == 'bowl_snack':
+            if category == 'bowl_snack' or category == 'special_meal':
                for item_mask in mask:                   
-                    grasp_point, centroid, yaw_angle, wp1, wp2, p1, p2 = self.calculate_grasp_point_width(item_mask, 'plate_snack')
+                    grasp_point, centroid, yaw_angle, wp1, wp2, p1, p2 = self.calculate_grasp_point_width(item_mask, 'bowl_snack')
                     if not self.AUTONOMY:
                         vis2 = self.draw_points(camera_color_data, centroid, p1, p2, wp1,wp2)
 
@@ -713,7 +801,7 @@ class BiteAcquisitionInference:
                         if not raf_utils.validate_with_user("Is the grasp point correct? "):
                             sys.exit(1)
                         cv2.destroyAllWindows() 
-                    pose, width_point1, width_point2 = self.get_object_position(camera_info_data, camera_depth_data, yaw_angle, grasp_point, wp1, wp2, 'bowl_snack')                  
+                    pose, width_point1, width_point2 = self.get_object_position(camera_info_data, camera_depth_data, yaw_angle, centroid, wp1, wp2, 'bowl_snack')                  
                     grip_val = self.skill_library.getGripperWidth(width_point1, width_point2, finger_offset, pad_offset, insurance, close)
                     self.robot_controller.set_gripper(grip_val)
                     rospy.sleep(0.8)    
@@ -723,12 +811,23 @@ class BiteAcquisitionInference:
                             if not raf_utils.validate_with_user("Is the robot in the correct position? "):
                                 sys.exit(1)
                                 break
+                        #added to change how far down the gripper goes for bowl snacks
+                        pose.position.z -= 0.017
+                        if category == 'special_meal':
+                            pose.position.z -= 0.018
+                        if category == 'pasta':
+                            pose.position.z -= 0.02
+                        self.robot_controller.move_to_pose(pose)
+                        rospy.sleep(1)
                         grasp_success = self.robot_controller.set_gripper(grip_val*close)
                         if not raf_utils.validate_with_user("Did the robot grasp the object? "):
                             pose.position.z += 0.1
                             self.robot_controller.move_to_pose(pose)
                             self.clear_plate()        
                     else:
+                        pose.position.z -= 0.017
+                        self.robot_controller.move_to_pose(pose)
+                        rospy.sleep(1)
                         grasp_success = self.robot_controller.set_gripper(grip_val*close)
 
                     pose.position.z += 0.15
@@ -740,8 +839,7 @@ class BiteAcquisitionInference:
                         self.isRetryAttempt = True
                         self.clear_plate()
                         return
-                    self.robot_controller.move_to_multi_bite_transfer()
-
+                    self.robot_controller.move_to_feed_pose()
                     # Check for multi-bite
                     while self.checkObjectGrasped():
                         pass
@@ -793,13 +891,13 @@ class BiteAcquisitionInference:
                     grasp_point, centroid, yaw_angle, wp1, wp2, p1, p2 = self.calculate_grasp_point_width(item_mask, 'drink')
                     
                     if not self.AUTONOMY:
-                        vis2 = self.draw_points(camera_color_data, centroid, p1, p2, box)
+                        vis2 = self.draw_points(camera_color_data, centroid, p1, p2)
                         cv2.imshow('vis2', vis2)
                         cv2.waitKey(0)
                         if not raf_utils.validate_with_user("Is the grasp point correct? "):
                             sys.exit(1)
                         cv2.destroyAllWindows()
-                    pose, width_point1, width_point2 = self.get_object_position(camera_info_data, camera_depth_data, yaw_angle, grasp_point, wp1, wp2, 'drink')
+                    pose, width_point1, width_point2 = self.get_object_position(camera_info_data, camera_depth_data, yaw_angle, centroid, wp1, wp2, 'drink')
                     self.robot_controller.set_gripper(0.0)
                     rospy.sleep(0.8)
                     cup_position = copy.deepcopy(pose)
@@ -895,7 +993,7 @@ class BiteAcquisitionInference:
             cv2.line(image, wp1, wp2, (255,0,0), 2)
         cv2.circle(image, center, 5, (0,255,0), -1)
         cv2.circle(image, lower, 5, (0,0,255), -1)
-        cv2.circle(image, mid, 5, (0,0,255), -1)
+        cv2.circle(image, mid, 5, (255,0,0), -1)
         return image  
 
 
@@ -917,7 +1015,7 @@ class BiteAcquisitionInference:
             # find bottom of food
             lower_center = detect_lower_center(item_mask)
             
-            # finds the point the gripper fill go to 
+            # finds the point the gripper will go to 
             grasp_point = get_grasp_points(centroid, lower_center)
 
             # find the points on the box across from the grasp point
@@ -952,10 +1050,12 @@ class BiteAcquisitionInference:
         
     
     def get_object_position(self, camera_info_data, camera_depth_data, yaw_angle, grasp_point, wp1, wp2, category):
+        print("food classes: ", self.FOOD_CLASSES)
         if category == 'drink':
             angle_of_rotation = 180
         else:
             angle_of_rotation = (180 - yaw_angle) - 30
+        
         
         rot = self.get_rotation_matrix(radians(angle_of_rotation))
         validity, center_point = raf_utils.pixel2World(camera_info_data, grasp_point[0], grasp_point[1], camera_depth_data)
@@ -965,7 +1065,16 @@ class BiteAcquisitionInference:
         if not validity:
             print("Invalid centroid")
 
-        center_point[2] -= 0.045
+        if center_point is None and category is 'drink':
+            print("No depth data! Retrying...")
+            # recursive function! not good
+            self.clear_plate(cup=True)
+            return
+        
+        if category == 'drink':
+            center_point[2] += 0.06
+        else:
+            center_point[2] -= 0.065
         food_transform = np.eye(4)
         food_transform[:3,3] = center_point.reshape(1,3)
         food_transform[:3,:3] = rot
@@ -975,12 +1084,14 @@ class BiteAcquisitionInference:
         pose = self.tf_utils.get_pose_msg_from_transform(food_base)
         pose.position.y += self.CAMERA_OFFSET # Realsense camera offset
         pose.position.z -= self.Z_OFFSET # 0.01
-        pose.position.x += 0.005 # Tilt of realsense to kinova moves desire pos down to 0.005
+        pose.position.x += 0.007# Tilt of realsense to kinova moves desire pos down to 0.005
 
         euler_angles = euler_from_quaternion([pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w])
         roll = euler_angles[0]
         pitch = euler_angles[1]
         yaw = euler_angles[2] - 90
+        if category == 'drink':
+            yaw = euler_angles[2]
 
         q = quaternion_from_euler(roll, pitch, yaw)
         pose.orientation.x = q[0]

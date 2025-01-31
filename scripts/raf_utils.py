@@ -8,6 +8,9 @@ from geometry_msgs.msg import Pose, PoseStamped
 from geometry_msgs.msg import Pose, TransformStamped
 from math import atan2, cos, sin, sqrt, pi
 import time
+import pygame
+import random
+
 
 def angle_between_pixels(source_px, target_px, image_width, image_height, orientation_symmetry = False):
     def angle_between(p1, p2):
@@ -276,17 +279,28 @@ def validate_with_user(question):
     
 def get_category_from_label(food_classes):
     for food_class in food_classes:
-        if food_class in ['carrot', 'celery', 'small rob pretzel']:
-            return 'plate_snack'
-        elif food_class in ['almonds', 'pretzel nuggets', 'grapes', 'french fries', 'fruits']:
-            return 'bowl_snack'
+        if food_class in ['carrot', 'pretzel bites','celery','almonds','chicken tenders', 'chocolate', 'watermelon','gummy bears','egg roll']:
+            return 'test'
+        elif food_class in ['pretzel nuggets', 'green grapes', 'french fries', 'fruits','chicken nugget']:
+            return 'test'
         elif food_class in ['cup', 'bottle']:
             return 'drink'
-        elif food_class in ['sushi', 'dumplings', 'chicken tenders']:
+        elif food_class in [ 'dumplings', 'chicken tenders']:
             return 'meal'
+        elif food_class in ['sushi', 'chicken nugget', 'donut']:
+            return 'special_meal'
+        elif food_class in ['penne pasta','tomato','green vegetable']:
+            return 'pasta'
+        
+def randomize_selection(items):
+    if not items:
+        return None
+    choice = random.choice(items)
+    return choice if isinstance(choice, list) else [choice]
+        
         
 
-def organize_food_data(self, categories, clean_item_labels, item_masks, item_portions):
+def organize_food_data(categories, clean_item_labels, item_masks, item_portions):
     category_list, labels_list, per_food_masks, per_food_portions = [], [], [], []
     for i in range(len(categories)):
             if labels_list.count(clean_item_labels[i]) == 0:
@@ -298,8 +312,17 @@ def organize_food_data(self, categories, clean_item_labels, item_masks, item_por
                 index = labels_list.index(clean_item_labels[i])
                 per_food_masks[index].append(item_masks[i])
                 per_food_portions[index] += item_portions[i]
-    return category_list, labels_list, per_food_masks, per_food_portions    
+    return category_list, labels_list, per_food_masks, per_food_portions   
 
+def play_sound(type):
+    pygame.mixer.init()
+    if type == "intro":
+        pygame.mixer.music.load("../assets/intro.mp3")
+    elif type == "notification":
+        pygame.mixer.music.load("../assets/notification.mp3")
+    pygame.mixer.music.play()
+    while pygame.mixer.music.get_busy():
+        continue
 
 
     

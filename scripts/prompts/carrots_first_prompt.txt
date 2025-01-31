@@ -3,7 +3,7 @@ Available items: ['sushi','dumplings']
 
 
 You have been given an image of food items on a plate. I have just had a bite of {variable} and I would like to keep eating this food until I run out.
-When no more of the food item I have been eating is detected onn the plate I would like to start eating the other food item. 
+When no more of the food item I have been eating is detected on the plate I would like to start eating the other food item. 
 Your answer should have the following format: ['next_bite']. 
 Do not return anything except this. Answers should only contain one of the two available items you have been given.
 

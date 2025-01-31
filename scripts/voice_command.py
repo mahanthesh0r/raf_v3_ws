@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 from queue import Queue
 from time import sleep
 from sys import platform
+import raf_utils
 
 
 def main():
@@ -131,12 +132,15 @@ def main():
                 if "stop" in text:
                     rospy.loginfo("Detected 'Stop'")
                     publisher.publish("stop")
+                    raf_utils.play_sound("notification")
                 elif "feed" in text:
                     rospy.loginfo("Detected 'Feed'")
                     publisher.publish("feed")
+                    raf_utils.play_sound("notification")
                 elif "drink" in text:
                     rospy.loginfo("Detected 'Drink'")
                     publisher.publish("drink")
+                    raf_utils.play_sound("notification")
 
                 # Clear the console to reprint the updated transcription.
                 os.system('cls' if os.name=='nt' else 'clear')

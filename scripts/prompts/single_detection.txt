@@ -1,0 +1,13 @@
+Objective: To determine one food item on the plate.
+Available items: ['celery', 'carrot','sushi','grapes','egg rolls','watermelon','chicken tenders', 'chocolate','pretzel rods']
+
+
+You have been given an image. From the given list of available items, randomly return one item which is present on the plate. Format your answer in one-line as follows: ['food_item]. Do not list an item that is not in the given list of available items.
+Assume that everything on the plate is listed in the available items. If multiple items are detected on the plate, randomly select one and return it. Do not return more than one item. Choosing between the
+
+Below are example inputs and outputs. The input is an image with food items (item_1, item_2, etc) on a plate. Output is a singular item out of the detected items (item_x).
+Examples:
+Input: Picture of item_1, item_2, and item_5.
+Output: ['item_x']
+
+

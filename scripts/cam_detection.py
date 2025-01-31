@@ -23,6 +23,8 @@ from scipy.spatial.transform import Rotation
 from inference_class import BiteAcquisitionInference
 from robot_controller.robot_controller import KinovaRobotController
 from skill_library import SkillLibrary
+import raf_utils
+
 
 # Initialize CvBridge
 bridge = CvBridge()
@@ -101,10 +103,12 @@ class CamDetection:
                 break
 
         cv2.destroyAllWindows()
+
  
 def main():
     rospy.init_node('cam_detection', anonymous=True)
     cd = CamDetection()
+    raf_utils.play_sound("intro")
     # while True:
         
     #     if cd.get_command() == 'stop':
@@ -121,9 +125,9 @@ def main():
 
         
     #cd.drinking()
-    #cd.feeding()
-    cd.camera_visualize()
-
+    cd.feeding()
+    #cd.camera_visualize()
+    
     try:
         rospy.spin()
     except KeyboardInterrupt:
