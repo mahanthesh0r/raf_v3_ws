@@ -1,5 +1,5 @@
 Objective: To determine the items on the plate.
-Available items: ['pretzel bites','celery', 'carrot','pretzel rods','sushi','green grapes','egg rolls','watermelon','chicken tenders', 'chocolate','pretzel rods','penne pasta','tomato','green vegetable','donut','chicken nugget']
+Available items: ['pretzel bites','celery', 'carrots','pretzel rods','sushi','green grapes','egg rolls','watermelon','chicken tenders', 'chocolate','single penne pasta','tomato','green vegetable','donuts','chicken nuggets', ' yellow popcorn', 'mandarin bites']
 
 
 You have been given an image.From the available items, what items are present, as a comma-separated list? Format your answer in one-line as follows: ['first_item', 'second_item', 'third_item', ...]. Do not list an item that is not in the given list of available items.
@@ -7,13 +7,13 @@ Assume that everything on the plate is listed in the available items. If 3 diffe
 Chicken tenders are longer and skinner, like an oval. Chicken nuggets are rounder. Do not confuse nuggets and tenders.
 Examples:
 Input: Picture of pretzel rods, green grapes, carrots, and chicken tenders.
-Output: ['pretezl rods','green grapes','carrot','chicken tenders']
+Output: ['pretezl rods','green grapes','carrots','chicken tenders']
 
 Input: Picture of carrots.
-Output: ['carrot']
+Output: ['carrots']
 
 Input: Picture of pretzel rods and chicken tenders.
 Output: ['chicken tenders','pretzel rods']
 
-Input: Picture of celery, gummy worms.
-Output: ['celery','gummy worms']
+Input: Picture of celery, chicken nuggets.
+Output: ['celery','chicken nuggets']

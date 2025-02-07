@@ -21,9 +21,12 @@ from cv_bridge import CvBridge
 import math
 from scipy.spatial.transform import Rotation
 from inference_class import BiteAcquisitionInference
+from inference_class2 import inference_class2
+from inference_class_final import BiteAcquisitionInference
 from robot_controller.robot_controller import KinovaRobotController
 from skill_library import SkillLibrary
 import raf_utils
+import logging
 
 
 # Initialize CvBridge
@@ -33,7 +36,9 @@ class CamDetection:
     def __init__(self):
         self.pixel_selector = PixelSelector()
         self.tf_utils = raf_utils.TFUtils()
-        self.inference_server = BiteAcquisitionInference()
+        #self.inference_server = BiteAcquisitionInference()
+        self.inferencefinal = BiteAcquisitionInference("/home/labuser/raf_v3_ws/src/raf_v3/scripts/config/config.yaml")
+        self.inference2 = inference_class2()
         self.camera = RealSenseROS()
         self.robot_controller = KinovaRobotController()
         self.skill_library = SkillLibrary()
@@ -80,12 +85,14 @@ class CamDetection:
 
     def feeding(self):
         self.robot_controller.reset()
-        self.inference_server.clear_plate()
+        #self.inference_server.clear_plate2()
+        #self.inference2.detection_values()
+        self.inferencefinal.clear_plate()
     
     def drinking(self):
         self.robot_controller.move_to_cup_joint()
         rospy.sleep(4)
-        self.inference_server.clear_plate(cup=True)
+        self.inferencefinal.clear_plate(cup=True)
     
     def cup_joint(self):
         self.robot_controller.move_to_cup_joint()
@@ -109,19 +116,19 @@ def main():
     rospy.init_node('cam_detection', anonymous=True)
     cd = CamDetection()
     raf_utils.play_sound("intro")
-    # while True:
+    while True:
         
-    #     if cd.get_command() == 'stop':
-    #         cd.clear_stack()
-    #         sys.exit(1)
-    #         return
-    #     elif cd.get_command() == 'feed':
-    #         print("Feeding")
-    #         cd.clear_stack()
-    #         cd.feeding()
-    #     elif cd.get_command() == 'drink':
-    #         cd.clear_stack()
-    #         cd.drinking()
+        if cd.get_command() == 'stop':
+            cd.clear_stack()
+            sys.exit(1)
+            return
+        elif cd.get_command() == 'feed':
+            print("Feeding")
+            cd.clear_stack()
+            cd.feeding()
+        elif cd.get_command() == 'drink':
+            cd.clear_stack()
+            cd.drinking()
 
         
     #cd.drinking()

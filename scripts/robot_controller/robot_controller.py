@@ -21,7 +21,12 @@ class KinovaRobotController(RobotController):
         self.feed_joint_pose = [0.979932562, 0.255900175, 4.526441602, 1.41794039, 4.205109033, 5.853851764]
         self.cup_joints = [4.446086643, 1.13195074, 5.0282936, 3.72753459, 2.099927796, 1.948415764] 
         self.sip_pose = [0.914517621, 0.205128547, 4.589919227, 4.33155814, 2.030097173, 2.809875376]
-        self.multi_bite_transfer = [0.74991562, 0.052394784, 4.51097798, 1.31203381, 4.214306918, 5.876802844]
+        #self.multi_bite_transfer = [0.74991562, 0.052394784, 4.51097798, 1.31203381, 4.214306918, 5.876802844]
+        self.multi_bite_tall_transfer = [1.02595689, 6.262712595, 4.498324348, 1.22686174, 4.219717439, 5.882195912]
+        self.single_bite_tall_transfer = [0.928375536, 6.24190827, 4.276196294, 1.43356109, 4.198843301, 5.842297685]
+        self.single_bite_short_transfer = [0.92786939, 6.27760025, 4.205126487, 1.37528454, 4.217099445, 5.722323752]
+        self.multi_bite_short_transfer = [1.0253809, 6.281038552, 4.418143922, 1.17991239, 4.255583955, 5.779553098]
+
 
 
     def reset(self):
@@ -33,17 +38,23 @@ class KinovaRobotController(RobotController):
         print('Moving to cup joint')
         self.set_joint_position(self.cup_joints)
 
-    def move_to_feed_pose(self):
-        print('Moving to feed pose')
-        self.set_joint_position(self.feed_joint_pose)
+    def move_to_feed_pose(self, height='TALL'):
+        print('Moving to feed pose', height)
+        if height == 'TALL':
+            self.set_joint_position(self.single_bite_tall_transfer)
+        else:
+            self.set_joint_position(self.single_bite_short_transfer)
 
     def move_to_sip_pose(self):
         print('Moving to sip pose')
         self.set_joint_position(self.sip_pose)
 
-    def move_to_multi_bite_transfer(self):
-        print('Moving to multi bite transfer')
-        self.set_joint_position(self.multi_bite_transfer)
+    def move_to_multi_bite_transfer(self, height='TALL'):
+        print('Moving to multi bite transfer', height)
+        if height == 'TALL':
+            self.set_joint_position(self.multi_bite_tall_transfer)
+        else:
+            self.set_joint_position(self.multi_bite_short_transfer)
 
     def move_to_pose(self, pose):
         print("Calling set_pose with pose: ", pose)

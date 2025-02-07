@@ -121,7 +121,7 @@ def detect_lower_center(mask):
     furthest_point = (int(furthest_point[0]), int(furthest_point[1]))
     return furthest_point
 
-
+# returns the points on the bounding box which are between the center and bottom of the box (for multi-bite)
 def get_grasp_points(center, lower_center):
     return (int((center[0] + lower_center[0]) / 2) , int((center[1] + lower_center[1]) / 2))
 
@@ -131,6 +131,7 @@ def mask_width_points(p1,p2,mask):
     p2 = np.array(p2)
     wp1 = proj_pix2mask(p1, mask)
     wp2 = proj_pix2mask(p2, mask)
+
     return wp1, wp2
 
 

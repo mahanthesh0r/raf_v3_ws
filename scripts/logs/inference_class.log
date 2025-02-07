@@ -1,0 +1,388 @@
+2025-02-05 13:01:08,352 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:01:08,352 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:01:08,352 - inference_class_final - INFO - Voice Command:  feed
+2025-02-05 13:01:09,353 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:01:09,354 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:01:10,355 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:01:10,355 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:01:11,356 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:01:11,356 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:01:17,242 - inference_class_final - INFO - Food_Classes: ['chicken nuggets']
+2025-02-05 13:01:17,242 - inference_class_final - INFO - Detection Prompt: chicken nuggets .
+2025-02-05 13:01:23,671 - inference_class_final - DEBUG - Scores: [[0.96875   ]
+ [0.95703125]
+ [0.96484375]
+ [0.95703125]
+ [0.96875   ]
+ [0.953125  ]
+ [0.953125  ]]
+2025-02-05 13:01:23,672 - inference_class_final - DEBUG - Index: 0 : [0.96875]
+2025-02-05 13:01:23,673 - inference_class_final - DEBUG - confidence: 0.42919009923934937
+2025-02-05 13:01:23,689 - inference_class_final - DEBUG - Label: chicken nuggets: 0.43
+2025-02-05 13:01:23,692 - inference_class_final - INFO - labels: chicken nuggets: 0.43
+2025-02-05 13:01:52,833 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:01:52,833 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:01:52,833 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:01:53,834 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:01:53,834 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:01:54,836 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:01:54,836 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:01:55,837 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:01:55,837 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:02:01,607 - inference_class_final - INFO - Food_Classes: ['pretzel bites']
+2025-02-05 13:02:01,607 - inference_class_final - INFO - Detection Prompt: pretzel bites .
+2025-02-05 13:02:04,473 - inference_class_final - WARNING - food item not detected. Terminating Script
+2025-02-05 13:02:04,473 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:02:04,473 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:02:04,473 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:02:05,474 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:02:05,474 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:02:06,476 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:02:06,476 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:02:07,476 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:02:07,477 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:02:14,145 - inference_class_final - INFO - Food_Classes: ['green grapes']
+2025-02-05 13:02:14,145 - inference_class_final - INFO - Detection Prompt: green grapes .
+2025-02-05 13:02:19,142 - inference_class_final - DEBUG - Scores: [[0.9609375 ]
+ [0.953125  ]
+ [0.953125  ]
+ [0.9609375 ]
+ [0.95703125]]
+2025-02-05 13:02:19,144 - inference_class_final - DEBUG - Index: 0 : [0.9609375]
+2025-02-05 13:02:19,144 - inference_class_final - DEBUG - confidence: 0.3407045006752014
+2025-02-05 13:02:19,165 - inference_class_final - DEBUG - Label: green grapes: 0.34
+2025-02-05 13:02:19,169 - inference_class_final - INFO - labels: green grapes: 0.34
+2025-02-05 13:02:45,788 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:02:45,789 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:02:45,789 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:02:46,790 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:02:46,790 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:02:47,792 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:02:47,792 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:02:48,792 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:02:48,793 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:02:58,358 - inference_class_final - INFO - Food_Classes: ['pretzel bites']
+2025-02-05 13:02:58,359 - inference_class_final - INFO - Detection Prompt: pretzel bites .
+2025-02-05 13:03:03,126 - inference_class_final - DEBUG - Scores: [[0.95703125]
+ [0.94921875]]
+2025-02-05 13:03:03,126 - inference_class_final - DEBUG - Index: 0 : [0.95703125]
+2025-02-05 13:03:03,127 - inference_class_final - DEBUG - confidence: 0.26740819215774536
+2025-02-05 13:03:03,144 - inference_class_final - DEBUG - Label: pretzel bites: 0.27
+2025-02-05 13:03:03,153 - inference_class_final - INFO - labels: pretzel bites: 0.27
+2025-02-05 13:03:32,297 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:03:32,298 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:03:32,298 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:03:33,300 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:03:33,300 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:03:34,301 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:03:34,301 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:03:35,302 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:03:35,302 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:03:41,448 - inference_class_final - INFO - Food_Classes: ['green grapes']
+2025-02-05 13:03:41,448 - inference_class_final - INFO - Detection Prompt: green grapes .
+2025-02-05 13:03:48,279 - inference_class_final - DEBUG - Scores: [0.96875]
+2025-02-05 13:03:48,279 - inference_class_final - DEBUG - Index: 0 : 0.96875
+2025-02-05 13:03:48,280 - inference_class_final - DEBUG - confidence: 0.3268083333969116
+2025-02-05 13:03:48,297 - inference_class_final - DEBUG - Label: green grapes: 0.33
+2025-02-05 13:03:48,305 - inference_class_final - INFO - labels: green grapes: 0.33
+2025-02-05 13:04:15,742 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:04:15,742 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:04:15,742 - inference_class_final - INFO - Voice Command:  feed
+2025-02-05 13:04:16,744 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:04:16,744 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:04:17,744 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:04:17,745 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:04:18,746 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:04:18,746 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:04:24,413 - inference_class_final - INFO - Food_Classes: ['pretzel bites']
+2025-02-05 13:04:24,413 - inference_class_final - INFO - Detection Prompt: pretzel bites .
+2025-02-05 13:04:30,516 - inference_class_final - DEBUG - Scores: [[0.953125  ]
+ [0.95703125]]
+2025-02-05 13:04:30,517 - inference_class_final - DEBUG - Index: 0 : [0.953125]
+2025-02-05 13:04:30,517 - inference_class_final - DEBUG - confidence: 0.25091278553009033
+2025-02-05 13:04:30,532 - inference_class_final - DEBUG - Label: pretzel bites: 0.25
+2025-02-05 13:04:30,536 - inference_class_final - INFO - labels: pretzel bites: 0.25
+2025-02-05 13:05:01,621 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:05:01,621 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:05:01,621 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:05:02,622 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:05:02,622 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:05:03,624 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:05:03,624 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:05:04,624 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:05:04,625 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:05:11,619 - inference_class_final - INFO - Food_Classes: ['chicken nuggets']
+2025-02-05 13:05:11,619 - inference_class_final - INFO - Detection Prompt: chicken nuggets .
+2025-02-05 13:05:17,977 - inference_class_final - DEBUG - Scores: [[0.96875   ]
+ [0.96484375]
+ [0.96875   ]
+ [0.9609375 ]
+ [0.95703125]
+ [0.953125  ]]
+2025-02-05 13:05:17,977 - inference_class_final - DEBUG - Index: 0 : [0.96875]
+2025-02-05 13:05:17,977 - inference_class_final - DEBUG - confidence: 0.4392662048339844
+2025-02-05 13:05:17,996 - inference_class_final - DEBUG - Label: chicken nuggets: 0.44
+2025-02-05 13:05:18,000 - inference_class_final - INFO - labels: chicken nuggets: 0.44
+2025-02-05 13:05:37,800 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:05:37,801 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:05:37,801 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:05:39,364 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:05:39,364 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:05:40,364 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:05:40,365 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:05:41,366 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:05:41,366 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:15:13,395 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:15:13,396 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:15:13,396 - inference_class_final - INFO - Voice Command:  feed
+2025-02-05 13:15:14,398 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:15:14,398 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:15:15,399 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:15:15,400 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:15:16,400 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:15:16,401 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:15:23,323 - inference_class_final - INFO - Food_Classes: ['egg rolls']
+2025-02-05 13:15:23,324 - inference_class_final - INFO - Detection Prompt: egg rolls .
+2025-02-05 13:15:30,144 - inference_class_final - DEBUG - Scores: [[0.96875  ]
+ [0.9609375]
+ [0.859375 ]
+ [0.9765625]
+ [0.9296875]]
+2025-02-05 13:15:30,144 - inference_class_final - DEBUG - Index: 0 : [0.96875]
+2025-02-05 13:15:30,144 - inference_class_final - DEBUG - confidence: 0.29665425419807434
+2025-02-05 13:15:30,164 - inference_class_final - DEBUG - Label: egg rolls: 0.30
+2025-02-05 13:15:30,166 - inference_class_final - INFO - labels: egg rolls: 0.30
+2025-02-05 13:15:30,171 - inference_class_final - DEBUG - Centroid: (822, 351)
+2025-02-05 13:15:30,171 - inference_class_final - DEBUG - Yaw Angle: 148.34872711328737
+2025-02-05 13:15:30,179 - inference_class_final - DEBUG - Lower Center: (808, 395)
+2025-02-05 13:15:30,179 - inference_class_final - DEBUG - Grasp Point: (815, 373)
+2025-02-05 13:15:30,180 - inference_class_final - DEBUG - Grasp Point 1: (794, 408)
+2025-02-05 13:15:30,193 - inference_class_final - DEBUG - Width Point 1: [804 393]
+2025-02-05 13:16:12,981 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:16:12,981 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:16:12,981 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:16:13,985 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:16:13,985 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:16:14,987 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:16:14,987 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:16:15,988 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:16:15,988 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:16:23,103 - inference_class_final - INFO - Food_Classes: ['pretzel bites']
+2025-02-05 13:16:23,103 - inference_class_final - INFO - Detection Prompt: pretzel bites .
+2025-02-05 13:16:28,337 - inference_class_final - DEBUG - Scores: [[0.9609375]
+ [0.9765625]]
+2025-02-05 13:16:28,337 - inference_class_final - DEBUG - Index: 0 : [0.9609375]
+2025-02-05 13:16:28,337 - inference_class_final - DEBUG - confidence: 0.31658050417900085
+2025-02-05 13:16:28,356 - inference_class_final - DEBUG - Label: pretzel bites: 0.32
+2025-02-05 13:16:28,368 - inference_class_final - INFO - labels: pretzel bites: 0.32
+2025-02-05 13:17:09,305 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:17:09,305 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:17:09,305 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:17:10,307 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:17:10,307 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:17:11,308 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:17:11,308 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:17:12,310 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:17:12,310 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:21:05,998 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:21:05,998 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:21:05,998 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:21:07,000 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:21:07,000 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:21:08,001 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:21:08,001 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:21:09,003 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:21:09,003 - inference_class_final - WARNING - No camera data received.
+2025-02-05 13:21:51,751 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:21:51,752 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:21:51,752 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:21:52,752 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:21:52,753 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:21:53,754 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:21:53,754 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:21:54,756 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:21:54,757 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:22:00,832 - inference_class_final - INFO - Food_Classes: ['green grapes']
+2025-02-05 13:22:00,833 - inference_class_final - INFO - Detection Prompt: green grapes .
+2025-02-05 13:22:07,695 - inference_class_final - DEBUG - Scores: [[0.95703125]
+ [0.9609375 ]]
+2025-02-05 13:22:07,695 - inference_class_final - DEBUG - Index: 0 : [0.95703125]
+2025-02-05 13:22:07,695 - inference_class_final - DEBUG - confidence: 0.41205689311027527
+2025-02-05 13:22:07,717 - inference_class_final - DEBUG - Label: green grapes: 0.41
+2025-02-05 13:22:07,721 - inference_class_final - INFO - labels: green grapes: 0.41
+2025-02-05 13:22:33,934 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:22:33,935 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:22:33,935 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:22:34,936 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:22:34,936 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:22:35,938 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:22:35,938 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:22:36,939 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:22:36,940 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:22:43,562 - inference_class_final - INFO - Food_Classes: ['sushi']
+2025-02-05 13:22:43,563 - inference_class_final - INFO - Detection Prompt: sushi .
+2025-02-05 13:22:48,769 - inference_class_final - DEBUG - Scores: [[0.8515625 ]
+ [0.89453125]
+ [0.9765625 ]]
+2025-02-05 13:22:48,770 - inference_class_final - DEBUG - Index: 0 : [0.8515625]
+2025-02-05 13:22:48,771 - inference_class_final - DEBUG - confidence: 0.7520125508308411
+2025-02-05 13:22:48,788 - inference_class_final - DEBUG - Label: sushi: 0.75
+2025-02-05 13:22:48,791 - inference_class_final - INFO - labels: sushi: 0.75
+2025-02-05 13:23:15,584 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:23:15,585 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:23:15,586 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:23:16,587 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:23:16,588 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:23:17,589 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:23:17,590 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:23:18,591 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:23:18,591 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:23:24,964 - inference_class_final - INFO - Food_Classes: ['green grapes']
+2025-02-05 13:23:24,964 - inference_class_final - INFO - Detection Prompt: green grapes .
+2025-02-05 13:23:30,051 - inference_class_final - DEBUG - Scores: [[0.95703125]
+ [0.9609375 ]]
+2025-02-05 13:23:30,051 - inference_class_final - DEBUG - Index: 0 : [0.95703125]
+2025-02-05 13:23:30,052 - inference_class_final - DEBUG - confidence: 0.5159857273101807
+2025-02-05 13:23:30,073 - inference_class_final - DEBUG - Label: green grapes: 0.52
+2025-02-05 13:23:30,076 - inference_class_final - INFO - labels: green grapes: 0.52
+2025-02-05 13:24:00,561 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:24:00,561 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:24:00,562 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:24:01,563 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:24:01,563 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:24:02,564 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:24:02,565 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:24:03,566 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:24:03,566 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:24:09,202 - inference_class_final - INFO - Food_Classes: ['green grapes']
+2025-02-05 13:24:09,202 - inference_class_final - INFO - Detection Prompt: green grapes .
+2025-02-05 13:24:14,337 - inference_class_final - DEBUG - Scores: [0.96484375]
+2025-02-05 13:24:14,337 - inference_class_final - DEBUG - Index: 0 : 0.96484375
+2025-02-05 13:24:14,338 - inference_class_final - DEBUG - confidence: 0.4946901202201843
+2025-02-05 13:24:14,354 - inference_class_final - DEBUG - Label: green grapes: 0.49
+2025-02-05 13:24:14,357 - inference_class_final - INFO - labels: green grapes: 0.49
+2025-02-05 13:24:44,517 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:24:44,518 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:24:44,518 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:24:45,519 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:24:45,519 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:24:46,520 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:24:46,521 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:24:47,522 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:24:47,522 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:24:53,514 - inference_class_final - INFO - Food_Classes: ['green grapes']
+2025-02-05 13:24:53,514 - inference_class_final - INFO - Detection Prompt: green grapes .
+2025-02-05 13:24:58,523 - inference_class_final - DEBUG - Scores: [0.96484375]
+2025-02-05 13:24:58,524 - inference_class_final - DEBUG - Index: 0 : 0.96484375
+2025-02-05 13:24:58,526 - inference_class_final - DEBUG - confidence: 0.4714665412902832
+2025-02-05 13:24:58,548 - inference_class_final - DEBUG - Label: green grapes: 0.47
+2025-02-05 13:24:58,553 - inference_class_final - INFO - labels: green grapes: 0.47
+2025-02-05 13:25:35,268 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:25:35,269 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:25:35,269 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:25:36,270 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:25:36,270 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:25:37,272 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:25:37,272 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:25:38,272 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:25:38,273 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:25:44,234 - inference_class_final - INFO - Food_Classes: ['sushi']
+2025-02-05 13:25:44,234 - inference_class_final - INFO - Detection Prompt: sushi .
+2025-02-05 13:25:49,422 - inference_class_final - DEBUG - Scores: [[0.84765625]
+ [0.82421875]
+ [0.97265625]]
+2025-02-05 13:25:49,422 - inference_class_final - DEBUG - Index: 0 : [0.84765625]
+2025-02-05 13:25:49,422 - inference_class_final - DEBUG - confidence: 0.7620701193809509
+2025-02-05 13:25:49,444 - inference_class_final - DEBUG - Label: sushi: 0.76
+2025-02-05 13:25:49,448 - inference_class_final - INFO - labels: sushi: 0.76
+2025-02-05 13:26:19,922 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:26:19,926 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:26:19,927 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:26:20,929 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:26:20,929 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:26:21,931 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:26:21,931 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:26:22,932 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:26:22,932 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:26:31,754 - inference_class_final - INFO - Food_Classes: ['sushi']
+2025-02-05 13:26:31,754 - inference_class_final - INFO - Detection Prompt: sushi .
+2025-02-05 13:26:36,708 - inference_class_final - DEBUG - Scores: [[0.86328125]
+ [0.97265625]]
+2025-02-05 13:26:36,709 - inference_class_final - DEBUG - Index: 0 : [0.86328125]
+2025-02-05 13:26:36,709 - inference_class_final - DEBUG - confidence: 0.7256486415863037
+2025-02-05 13:26:36,728 - inference_class_final - DEBUG - Label: sushi: 0.73
+2025-02-05 13:26:36,739 - inference_class_final - INFO - labels: sushi: 0.73
+2025-02-05 13:27:03,653 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:27:03,653 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:27:03,653 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:27:04,654 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:27:04,654 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:27:05,655 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:27:05,655 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:27:06,656 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:27:06,657 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:27:13,126 - inference_class_final - INFO - Food_Classes: ['egg rolls']
+2025-02-05 13:27:13,126 - inference_class_final - INFO - Detection Prompt: egg rolls .
+2025-02-05 13:27:18,304 - inference_class_final - DEBUG - Scores: [[0.8203125 ]
+ [0.97265625]]
+2025-02-05 13:27:18,304 - inference_class_final - DEBUG - Index: 0 : [0.8203125]
+2025-02-05 13:27:18,305 - inference_class_final - DEBUG - confidence: 0.3199707269668579
+2025-02-05 13:27:18,321 - inference_class_final - DEBUG - Label: egg rolls: 0.32
+2025-02-05 13:27:18,325 - inference_class_final - INFO - labels: egg rolls: 0.32
+2025-02-05 13:27:18,336 - inference_class_final - DEBUG - Centroid: (748, 211)
+2025-02-05 13:27:18,336 - inference_class_final - DEBUG - Yaw Angle: 156.54097591853844
+2025-02-05 13:27:18,348 - inference_class_final - DEBUG - Lower Center: (684, 217)
+2025-02-05 13:27:18,348 - inference_class_final - DEBUG - Grasp Point: (716, 214)
+2025-02-05 13:27:18,349 - inference_class_final - DEBUG - Grasp Point 1: (698, 256)
+2025-02-05 13:27:18,357 - inference_class_final - DEBUG - Width Point 1: [702 236]
+2025-02-05 13:27:49,782 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:27:49,783 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:27:49,783 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:27:50,784 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:27:50,784 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:27:51,786 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:27:51,786 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:27:52,788 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:27:52,789 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:28:00,782 - inference_class_final - INFO - Food_Classes: ['sushi']
+2025-02-05 13:28:00,782 - inference_class_final - INFO - Detection Prompt: sushi .
+2025-02-05 13:28:05,914 - inference_class_final - DEBUG - Scores: [[0.8671875 ]
+ [0.97265625]]
+2025-02-05 13:28:05,914 - inference_class_final - DEBUG - Index: 0 : [0.8671875]
+2025-02-05 13:28:05,914 - inference_class_final - DEBUG - confidence: 0.7634837031364441
+2025-02-05 13:28:05,932 - inference_class_final - DEBUG - Label: sushi: 0.76
+2025-02-05 13:28:05,938 - inference_class_final - INFO - labels: sushi: 0.76
+2025-02-05 13:28:39,588 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:28:39,589 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:28:39,589 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:28:40,590 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:28:40,590 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:28:41,591 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:28:41,591 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:28:42,592 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:28:42,593 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:29:03,335 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:29:03,337 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:29:03,337 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:29:04,340 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:29:04,340 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:29:05,340 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:29:05,341 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:29:06,342 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:29:06,342 - inference_class_final - DEBUG - Not a cup.
+2025-02-05 13:29:11,792 - inference_class_final - INFO - Food_Classes: ['chicken nuggets']
+2025-02-05 13:29:11,792 - inference_class_final - INFO - Detection Prompt: chicken nuggets .
+2025-02-05 13:29:18,179 - inference_class_final - DEBUG - Scores: [0.96875]
+2025-02-05 13:29:18,179 - inference_class_final - DEBUG - Index: 0 : 0.96875
+2025-02-05 13:29:18,182 - inference_class_final - DEBUG - confidence: 0.50244140625
+2025-02-05 13:29:18,200 - inference_class_final - DEBUG - Label: chicken nuggets: 0.50
+2025-02-05 13:29:18,205 - inference_class_final - INFO - labels: chicken nuggets: 0.50
+2025-02-05 13:29:53,363 - inference_class_final - DEBUG - Clearing the plate.
+2025-02-05 13:29:53,364 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:29:53,364 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:29:54,364 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:29:54,365 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:29:55,366 - inference_class_final - DEBUG - Listening...
+2025-02-05 13:29:55,366 - inference_class_final - INFO - Voice Command:  None
+2025-02-05 13:29:56,367 - inference_class_final - DEBUG - No voice command received.
+2025-02-05 13:29:56,368 - inference_class_final - DEBUG - Not a cup.

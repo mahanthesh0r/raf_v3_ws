@@ -76,23 +76,32 @@ class SkillLibrary:
         input("Press ENTER to move back to before transfer pose.")
         self.robot_controller.move_to_transfer_pose()
 
+# this function sets the gripper value based on real world coordinates
+    def getGripperWidth(self, width_point1, width_point2, insurance=0.975, close=1.1):
 
-    def getGripperWidth(self, width_point1, width_point2, finger_offset=0.6, pad_offset=0.35, insurance=0.975, close=1.175):
         #width of item in cm
-        width =  np.linalg.norm(width_point1 - width_point2)
-        # function transforming width to a gripper value
-        grip_val = -7*((width*100)+(2*(finger_offset+pad_offset))) + 100
-        grip_val = grip_val*insurance
+        width =  np.linalg.norm(width_point1-width_point2)
+        
+        
+        width = width*100 # convert to centimeters
+        print(f"width: {width}")
+
+        # cubic regression function mapping gripper width to grip value
+        grip_val = -0.0215894*width**3 + 0.471771*width**2 - 9.18925*width + 98.07416
+
+        # add insurance factor to ensure gripper can fit around food 
+        grip_val = grip_val-3.159 # goes an extra .35 cm
 
         # make sure it doesn't exceed kinova limits
-        if grip_val > 100 - 2*(finger_offset+pad_offset):
-            grip_val = 100 - 2*(finger_offset+pad_offset)
+        if grip_val > 98:
+            grip_val = 98
         elif grip_val < 0:
             grip_val = 0
         
         grip_val = round(grip_val)/100
 
         return grip_val
+    
 
 
 

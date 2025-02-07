@@ -26,8 +26,20 @@ import re
 from std_msgs.msg import String
 from datetime import datetime, timedelta, date
 from time import sleep
-from groundingdino.util.inference import Model
-from segment_anything import sam_model_registry, SamPredictor
+# from groundingdino.util.inference import Model
+# from segment_anything import sam_model_registry, SamPredictor
+
+# Grounded-SAM 2
+from dds_cloudapi_sdk import Config
+from dds_cloudapi_sdk import Client
+from dds_cloudapi_sdk.tasks.dinox import DinoxTask
+from dds_cloudapi_sdk.tasks.types import DetectionTarget
+from dds_cloudapi_sdk import TextPrompt
+import pycocotools.mask as mask_util
+from pathlib import Path
+from PIL import Image
+from sam2.build_sam import build_sam2
+from sam2.sam2_image_predictor import SAM2ImagePredictor
 
 from skill_library import SkillLibrary
 
@@ -36,10 +48,25 @@ PATH_TO_GROUNDED_SAM = '/home/labuser/raf_v3_ws/Grounded-Segment-Anything'
 PATH_TO_DEPTH_ANYTHING = '/home/labuser/raf_v3_ws/Depth-Anything'
 USE_EFFICIENT_SAM = False
 
-sys.path.append(PATH_TO_DEPTH_ANYTHING)
+PATH_TO_GROUNDED_SAM2 = '/home/labuser/raf_v3_ws/Grounded-SAM-2'
+API_TOKEN = "2b619f1c4b7434549812bae4690e52d8" # mahanthesh token
+# API_TOKEN = "18a990ad81b63065ccd2aefb1c0bab77" # jake token
+TEXT_PROMPT = "pasta ."
+IMG_PATH = PATH_TO_GROUNDED_SAM2 + "/notebooks/images/cars.jpg"
+SAM2_CHECKPOINT = PATH_TO_GROUNDED_SAM2 + "/checkpoints/sam2.1_hiera_large.pt"
+SAM2_MODEL_CONFIG = "configs/sam2.1/sam2.1_hiera_l.yaml"
+BOX_THRESHOLD = 0.25
+WITH_SLICE_INFERENCE = False
+SLICE_WH = (480, 480)
+OVERLAP_RATIO = (0.2, 0.2)
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+OUTPUT_DIR = Path("outputs/grounded_sam2_dinox_demo")
+DUMP_JSON_RESULTS = True
 
-from depth_anything.dpt import DepthAnything
-from depth_anything.util.transform import Resize, NormalizeImage, PrepareForNet
+sys.path.append(PATH_TO_GROUNDED_SAM2)
+
+# from depth_anything.dpt import DepthAnything
+# from depth_anything.util.transform import Resize, NormalizeImage, PrepareForNet
 
 class GPT4VFoodIdentification:
     def __init__(self, api_key, prompt_dir):
@@ -132,6 +159,7 @@ class BiteAcquisitionInference:
         self.CAMERA_OFFSET = 0.04
         self.AUTONOMY = False
         self.isPlate = True
+        self.image_path = None
         self.logging_file_path = "/home/labuser/raf_v3_ws/src/raf_v3/scripts"
         self.isRetryAttempt = False
         self.DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -150,37 +178,45 @@ class BiteAcquisitionInference:
         self.GROUNDING_DINO_CONFIG_PATH = PATH_TO_GROUNDED_SAM + "/GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"
         self.GROUNDING_DINO_CHECKPOINT_PATH = PATH_TO_GROUNDED_SAM + "/groundingdino_swint_ogc.pth"
          # Building GroundingDINO inference model
-        self.grounding_dino_model = Model(model_config_path=self.GROUNDING_DINO_CONFIG_PATH, model_checkpoint_path=self.GROUNDING_DINO_CHECKPOINT_PATH)
+        #self.grounding_dino_model = Model(model_config_path=self.GROUNDING_DINO_CONFIG_PATH, model_checkpoint_path=self.GROUNDING_DINO_CHECKPOINT_PATH)
         self.use_efficient_sam = USE_EFFICIENT_SAM
 
-        if self.use_efficient_sam:
-            self.EFFICIENT_SAM_CHECKPOINT_PATH = PATH_TO_GROUNDED_SAM + "/efficientsam_s_gpu.jit"
-            self.efficientsam = torch.jit.load(self.EFFICIENT_SAM_CHECKPOINT_PATH)   
+        # Grounded-SAM 2
+        self.API_TOKEN = "2b619f1c4b7434549812bae4690e52d8"
+        self.text_prompt = "gummy bears . pretzel bites ."
+        self.sam2_checkpoint = PATH_TO_GROUNDED_SAM2 + "/checkpoints/sam2.1_hiera_large.pt"
+        self.sam2_model_config = "configs/sam2.1/sam2.1_hiera_l.yaml"
+        self.BOX_THRESHOLD = 0.1
+        self.DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-        else:
-            # Segment-Anything checkpoint
-            SAM_ENCODER_VERSION = "vit_h"
-            SAM_CHECKPOINT_PATH = PATH_TO_GROUNDED_SAM + "/sam_vit_h_4b8939.pth"
+        # if self.use_efficient_sam:
+        #     self.EFFICIENT_SAM_CHECKPOINT_PATH = PATH_TO_GROUNDED_SAM + "/efficientsam_s_gpu.jit"
+        #     self.efficientsam = torch.jit.load(self.EFFICIENT_SAM_CHECKPOINT_PATH)   
 
-            # Building SAM Model and SAM Predictor
-            sam = sam_model_registry[SAM_ENCODER_VERSION](checkpoint=SAM_CHECKPOINT_PATH)
-            sam.to(device=self.DEVICE)
-            self.sam_predictor = SamPredictor(sam)
+        # else:
+        #     # Segment-Anything checkpoint
+        #     SAM_ENCODER_VERSION = "vit_h"
+        #     SAM_CHECKPOINT_PATH = PATH_TO_GROUNDED_SAM + "/sam_vit_h_4b8939.pth"
 
-        self.depth_anything = DepthAnything.from_pretrained('LiheYoung/depth_anything_vitl14').to(self.DEVICE).eval()
-        self.depth_anything_transform = Compose([
-            Resize(
-                width=518,
-                height=518,
-                resize_target=False,
-                keep_aspect_ratio=True,
-                ensure_multiple_of=14,
-                resize_method='lower_bound',
-                image_interpolation_method=cv2.INTER_CUBIC,
-            ),
-            NormalizeImage(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-            PrepareForNet(),
-        ])
+        #     # Building SAM Model and SAM Predictor
+        #     sam = sam_model_registry[SAM_ENCODER_VERSION](checkpoint=SAM_CHECKPOINT_PATH)
+        #     sam.to(device=self.DEVICE)
+        #     self.sam_predictor = SamPredictor(sam)
+
+        # self.depth_anything = DepthAnything.from_pretrained('LiheYoung/depth_anything_vitl14').to(self.DEVICE).eval()
+        # self.depth_anything_transform = Compose([
+        #     Resize(
+        #         width=518,
+        #         height=518,
+        #         resize_target=False,
+        #         keep_aspect_ratio=True,
+        #         ensure_multiple_of=14,
+        #         resize_method='lower_bound',
+        #         image_interpolation_method=cv2.INTER_CUBIC,
+        #     ),
+        #     NormalizeImage(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        #     PrepareForNet(),
+        # ])
 
     def command_callback(self, msg):
         """
@@ -230,74 +266,77 @@ class BiteAcquisitionInference:
         with open(log_file_path, 'w') as f:
             f.write("Success: %d, retries: %d" % (new_success, new_retries))
 
-
-    def clear_plate(self, cup=False):
-        self.listen_for_commands(3)
-        self.FOOD_CLASSES = []
+    def clear_plate2(self):
         camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
-        if not cup:
-            self.robot_controller.reset()
-            items = self.recognize_items(camera_color_data)
-            #items = ['gummy bears']
-            items = raf_utils.randomize_selection(items)
+        self.detect_food_GS2(camera_color_data)
 
-            if items is not None:
-                print("Items: ", items)
-                if items != [] and 'watermelon' in items:
-                    items = ['red cube' if item == 'watermelon' else item for item in items]
-                if items != [] and 'chocolate' in items:
-                    items = ['brown cube' if item == 'chocolate' else item for item in items]
+    # def clear_plate(self, cup=False):
+    #     self.listen_for_commands(3)
+    #     self.FOOD_CLASSES = []
+    #     camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
+    #     if not cup:
+    #         self.robot_controller.reset()
+    #         items = self.recognize_items(camera_color_data)
+    #         #items = ['gummy bears']
+    #         items = raf_utils.randomize_selection(items)
+
+    #         if items is not None:
+    #             print("Items: ", items)
+    #             if items != [] and 'watermelon' in items:
+    #                 items = ['red cube' if item == 'watermelon' else item for item in items]
+    #             if items != [] and 'chocolate' in items:
+    #                 items = ['brown cube' if item == 'chocolate' else item for item in items]
             
-            # added by jake
-            else:
-                print("No food items detected!")
-                sys.exit(1)
+    #         # added by jake
+    #         else:
+    #             print("No food items detected!")
+    #             sys.exit(1)
 
             
-            #items = ['brown cube','grapes']
-        else:
-            self.robot_controller.move_to_cup_joint()
-            rospy.sleep(5)
-            #items = self.recognize_items(camera_color_data)
-            items = ['cup']
+    #         #items = ['brown cube','grapes']
+    #     else:
+    #         self.robot_controller.move_to_cup_joint()
+    #         rospy.sleep(5)
+    #         #items = self.recognize_items(camera_color_data)
+    #         items = ['cup']
 
-        print("Items: ", items)
-        self.FOOD_CLASSES = items
+    #     print("Items: ", items)
+    #     self.FOOD_CLASSES = items
 
-        if camera_color_data is None:
-            print("No camera data")
-            return
+    #     if camera_color_data is None:
+    #         print("No camera data")
+    #         return
         
-        annotated_image, detections, item_masks, item_portions, item_labels = self.detect_food(camera_color_data, isCup=cup)
+    #     annotated_image, detections, item_masks, item_portions, item_labels = self.detect_food(camera_color_data, isCup=cup)
        
-        if not self.AUTONOMY:
-            vis = camera_color_data.copy()
-            cv2.imshow('vis', annotated_image)
-            cv2.waitKey(0)
-            if not raf_utils.validate_with_user("Are the detected items correct? "):
-                sys.exit(1)
-            cv2.destroyAllWindows()
+    #     if not self.AUTONOMY:
+    #         vis = camera_color_data.copy()
+    #         cv2.imshow('vis', annotated_image)
+    #         cv2.waitKey(0)
+    #         if not raf_utils.validate_with_user("Are the detected items correct? "):
+    #             sys.exit(1)
+    #         cv2.destroyAllWindows()
 
-        clean_item_labels, _ = self.clean_labels(item_labels)
-        print("----- Clean Item Labels:", clean_item_labels)
+    #     clean_item_labels, _ = self.clean_labels(item_labels)
+    #     print("----- Clean Item Labels:", clean_item_labels)
 
-        categories = self.categorize_items(clean_item_labels)
-        print("--------------------")
-        print("Labels:", item_labels)
-        print("Categories:", categories)
-        print("Portions:", item_portions)
-        print("--------------------")
+    #     categories = self.categorize_items(clean_item_labels)
+    #     print("--------------------")
+    #     print("Labels:", item_labels)
+    #     print("Categories:", categories)
+    #     print("Portions:", item_portions)
+    #     print("--------------------")
 
 
 
-        category_list, labels_list, per_food_masks, per_food_portions = raf_utils.organize_food_data(categories, clean_item_labels, item_masks, item_portions)
+    #     category_list, labels_list, per_food_masks, per_food_portions = raf_utils.organize_food_data(categories, clean_item_labels, item_masks, item_portions)
 
-        print("Category List:", category_list)
-        print("Labels List:", labels_list)
-        print("Per Food Masks Len:", [len(x) for x in per_food_masks])
-        print("Per Food Portions:", per_food_portions)
+    #     print("Category List:", category_list)
+    #     print("Labels List:", labels_list)
+    #     print("Per Food Masks Len:", [len(x) for x in per_food_masks])
+    #     print("Per Food Portions:", per_food_portions)
 
-        self.get_autonomous_action(annotated_image, camera_color_data, per_food_masks, category_list, labels_list, per_food_portions)
+    #     self.get_autonomous_action(annotated_image, camera_color_data, per_food_masks, category_list, labels_list, per_food_portions)
 
 
     def listen_for_commands(self, duration):
@@ -322,6 +361,87 @@ class BiteAcquisitionInference:
         response = self.gpt4v_client.prompt(image).strip()
         items = ast.literal_eval(response)
         return items
+    
+    def detect_food_GS2(self, image, isCup=False):
+        if image is None:
+            print("No camera data captured")
+            return
+        config = Config(self.API_TOKEN)
+        client = Client(config)
+        classes = [x.strip().lower() for x in self.text_prompt.split('.') if x]
+        class_name_to_id = {name: id for id, name in enumerate(classes)}
+        # cv2.imshow("Captured Image", image)
+        # cv2.waitKey(0)
+        self.image_path = raf_utils.image_from_camera(image)
+        print("Image Path: ", self.image_path)
+        
+        image_url = client.upload_file(self.image_path)
+        task = DinoxTask(
+            image_url=image_url,
+            prompts=[TextPrompt(text=self.text_prompt)],
+            bbox_threshold=BOX_THRESHOLD,
+            targets=[DetectionTarget.BBox],
+        )
+        client.run_task(task)
+        result = task.result
+        objects = result.objects
+        input_boxes = []
+        confidences = []
+        class_names = []
+        class_ids = []
+
+        for idx, obj in enumerate(objects):
+            input_boxes.append(obj.bbox)
+            confidences.append(obj.score)
+            cls_name = obj.category.lower().strip()
+            class_names.append(cls_name)
+            class_ids.append(class_name_to_id[cls_name])
+        
+        input_boxes = np.array(input_boxes)
+        class_ids = np.array(class_ids)
+        
+        torch.autocast(device_type=DEVICE, dtype=torch.bfloat16).__enter__()
+        if torch.cuda.get_device_properties(0).major >= 8:
+            torch.backends.cuda.matmul.allow_tf32 = True
+            torch.backends.cudnn.allow_tf32 = True
+
+        sam2_model = build_sam2(self.sam2_model_config, self.sam2_checkpoint, device=DEVICE)
+        sam2_predictor = SAM2ImagePredictor(sam2_model)
+        image = Image.open(self.image_path)
+        sam2_predictor.set_image(np.array(image.convert("RGB")))
+        
+        masks, scores, logits = sam2_predictor.predict(
+            point_coords=None,
+            point_labels=None,
+            box=input_boxes,
+            multimask_output=False,
+        )
+        print("Here 2")
+        if masks.ndim == 4:
+            masks = masks.squeeze(1)
+
+        labels = [
+            f"{class_name}: {confidence:.2f}"
+            for class_name, confidence in zip(class_names, confidences)
+        ]
+        img = cv2.imread(self.image_path)
+        detections = sv.Detections(
+            xyxy=input_boxes,
+            mask=masks.astype(bool),
+            class_id=class_ids,
+        )
+        box_annotator = sv.BoxAnnotator()
+        annotated_frame = box_annotator.annotate(scene=img.copy(), detections=detections)
+
+        label_annotator = sv.LabelAnnotator()
+        annotated_frame = label_annotator.annotate(scene=annotated_frame, detections=detections, labels=labels)
+        mask_annotator = sv.MaskAnnotator()
+        annotated_frame = mask_annotator.annotate(scene=annotated_frame, detections=detections)
+        cv2.imshow('annotated_frame', annotated_frame)
+        cv2.waitKey(0)
+        
+        
+
     
     
     def detect_food(self, image, isCup=False):
@@ -1064,7 +1184,6 @@ class BiteAcquisitionInference:
         validity, width_point2 = raf_utils.pixel2World(camera_info_data, wp2[0], wp2[1], camera_depth_data)
         if not validity:
             print("Invalid centroid")
-
         if center_point is None and category is 'drink':
             print("No depth data! Retrying...")
             # recursive function! not good

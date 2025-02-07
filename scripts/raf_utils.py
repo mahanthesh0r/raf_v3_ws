@@ -10,6 +10,8 @@ from math import atan2, cos, sin, sqrt, pi
 import time
 import pygame
 import random
+import tempfile
+import os
 
 
 def angle_between_pixels(source_px, target_px, image_width, image_height, orientation_symmetry = False):
@@ -177,8 +179,6 @@ def pretzel_angle_between_pixels(center, lower):
     return angle
 
 def getOrientation(mask):
-  
-
   contours,_ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
   for i, c in enumerate(contours):
       
@@ -219,6 +219,7 @@ def pixel2World(camera_info, image_x, image_y, depth_image, box_width = 2):
 
     if image_y >= depth_image.shape[0] or image_x >= depth_image.shape[1]:
         return False, None
+    
 
     depth = depth_image[image_y, image_x]
 
@@ -279,24 +280,50 @@ def validate_with_user(question):
     
 def get_category_from_label(food_classes):
     for food_class in food_classes:
-        if food_class in ['carrot', 'pretzel bites','celery','almonds','chicken tenders', 'chocolate', 'watermelon','gummy bears','egg roll']:
-            return 'test'
-        elif food_class in ['pretzel nuggets', 'green grapes', 'french fries', 'fruits','chicken nugget']:
-            return 'test'
-        elif food_class in ['cup', 'bottle']:
-            return 'drink'
-        elif food_class in [ 'dumplings', 'chicken tenders']:
-            return 'meal'
-        elif food_class in ['sushi', 'chicken nugget', 'donut']:
-            return 'special_meal'
-        elif food_class in ['penne pasta','tomato','green vegetable']:
-            return 'pasta'
+        if food_class in ['egg rolls', 'chicken tenders', 'pretzel rods', 'carrots', 'celery']:
+            return 'multi-bite'
+        else:
+            return 'single-bite'
+        
+        
         
 def randomize_selection(items):
     if not items:
         return None
     choice = random.choice(items)
     return choice if isinstance(choice, list) else [choice]
+
+def find_gripper_values(food_item):
+    print("food item: ", food_item[0])
+    #['pretzel bites','celery', 'carrot','pretzel rods','sushi','green grapes','egg rolls','watermelon','chicken tenders', 
+    # 'chocolate','pretzel rods','penne pasta','tomato','green vegetable','donut','chicken nugget']
+    if food_item[0] in ['pretzel bites','chocolate','green grapes','popcorn']:
+        # chicken nugget is really a vegan mandarin bite
+        close = 1.12
+        # height of the food
+        height = 0.01
+    elif food_item[0] in ['chicken tenders','egg rolls','sushi','donuts']:
+        # these food items are taller and squishier
+        close = 1.2
+        height = 0.015
+    elif food_item[0] in ['almonds','pretzel rods','gummy bears']:
+        close = 1.08
+        height = 0.006
+    elif food_item[0] in ['single penne pasta']:
+        close = 1.1
+        height = 0.008
+    elif food_item[0] in ['carrots']:
+        close = 1.15
+        height = 0.01
+    elif food_item[0] in ['chicken nuggets']:
+        close = 1.22
+        height = 0.015
+    else:
+        close = 1.1
+        height = 0.01
+    print("close: ", close)
+    print("height: ", height)
+    return close, height
         
         
 
@@ -325,6 +352,23 @@ def play_sound(type):
         continue
 
 
+def image_from_camera(camera_data):
+    with tempfile.NamedTemporaryFile(suffix='.jpg', delete=False) as temp_file:
+        temp_file_name = temp_file.name
+        cv2.imwrite(temp_file_name, camera_data)
+    return temp_file_name
+
+def delete_temp_file(temp_file_name):
+    os.remove(temp_file_name)
+
+
+'''
+Converts a list of items to a string that can be used in a prompt
+'''
+def list_to_prompt_string(item):
+    if not item:
+        return ""
+    return item[0] + " ."
     
 
 

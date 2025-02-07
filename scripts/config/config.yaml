@@ -1,0 +1,12 @@
+Z_OFFSET: 0.01
+GRIPPER_OFFSET: 0.00
+CAMERA_OFFSET: 0.04
+AUTONOMY: true
+logging_file_path: "/home/labuser/raf_v3_ws/src/raf_v3/scripts"
+isRetryAttempt: false
+DEVICE: "cuda"
+BOX_THRESHOLD: 0.25
+PATH_TO_GROUNDED_SAM2: "/home/labuser/raf_v3_ws/Grounded-SAM-2"
+SAM2_CHECKPOINT: "/checkpoints/sam2.1_hiera_large.pt"
+SAM2_MODEL_CONFIG: "configs/sam2.1/sam2.1_hiera_l.yaml"
+bite_transfer_height: SHORT
