@@ -121,9 +121,28 @@ def detect_lower_center(mask):
     furthest_point = (int(furthest_point[0]), int(furthest_point[1]))
     return furthest_point
 
-# returns the points on the bounding box which are between the center and bottom of the box (for multi-bite)
+# returns the points on the bounding box which are 1/3 the distance from the bottom of the food item
 def get_grasp_points(center, lower_center):
-    return (int((center[0] + lower_center[0]) / 2) , int((center[1] + lower_center[1]) / 2))
+    y_dist = abs(center[1] - lower_center[1])
+    x_dist = abs(center[0] - lower_center[0])
+    theta = math.atan2(y_dist, x_dist)
+    # how much to move down the food item
+    percent = 0.25
+    dist = math.sqrt(x_dist**2 + y_dist**2)*percent
+    x = dist*math.cos(theta)
+    y = dist*math.sin(theta)
+    final_y = int(center[1] + y)
+    # x depends on angle of the food item
+    if center[0] > lower_center[0]:
+        final_x = int(center[0] - x)
+    else:
+        final_x = int(center[0] + x)
+    
+    #return (int((center[0] + lower_center[0]) / 2) , int((center[1] + lower_center[1]) / 2))
+
+    return (final_x, final_y)
+        
+
 
 
 def mask_width_points(p1,p2,mask):

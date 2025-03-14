@@ -25,6 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   CartesianState.msg
+  VisualServoData.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -46,6 +47,7 @@ generate_messages(
   geometry_msgs
   sensor_msgs
   trajectory_msgs
+  std_msgs
 )
 
 find_package(Boost REQUIRED COMPONENTS system)

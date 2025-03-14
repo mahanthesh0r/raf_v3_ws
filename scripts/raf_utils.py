@@ -222,6 +222,7 @@ def pixel2World(camera_info, image_x, image_y, depth_image, box_width = 2):
     
 
     depth = depth_image[image_y, image_x]
+    print("depth of item: ", depth)
 
     if math.isnan(depth) or depth < 0.05 or depth > 1.0:
 
@@ -280,7 +281,7 @@ def validate_with_user(question):
     
 def get_category_from_label(food_classes):
     for food_class in food_classes:
-        if food_class in ['egg rolls', 'chicken tenders', 'pretzel rods', 'carrots', 'celery']:
+        if food_class in ['egg rolls', 'chicken tenders', 'pretzel rods', 'carrots', 'celery','fried chicken']:
             return 'multi-bite'
         else:
             return 'single-bite'
@@ -293,36 +294,52 @@ def randomize_selection(items):
     choice = random.choice(items)
     return choice if isinstance(choice, list) else [choice]
 
-def find_gripper_values(food_item):
+def find_gripper_values(food_item,table_depth,food_depth):
     print("food item: ", food_item[0])
     #['pretzel bites','celery', 'carrot','pretzel rods','sushi','green grapes','egg rolls','watermelon','chicken tenders', 
     # 'chocolate','pretzel rods','penne pasta','tomato','green vegetable','donut','chicken nugget']
-    if food_item[0] in ['pretzel bites','chocolate','green grapes','popcorn']:
+    if food_item[0] in ['pretzel bites','chocolate','green grapes',' yellow popcorn']:
         # chicken nugget is really a vegan mandarin bite
-        close = 1.12
+        close = 1.085
         # height of the food
         height = 0.01
-    elif food_item[0] in ['chicken tenders','egg rolls','sushi','donuts']:
+    elif food_item[0] in ['chicken tenders','egg rolls','sushi','fried chicken']:
         # these food items are taller and squishier
-        close = 1.2
+        close = 1.185
         height = 0.015
+    elif food_item[0] in ['watermelon']:
+        close = 1.13
+    elif food_item[0] in ['donut']:
+        close = 1.15
     elif food_item[0] in ['almonds','pretzel rods','gummy bears']:
-        close = 1.08
-        height = 0.006
+        close = 1.05
+        height = 0.005
     elif food_item[0] in ['single penne pasta']:
         close = 1.1
         height = 0.008
     elif food_item[0] in ['carrots']:
-        close = 1.15
+        close = 1.08
         height = 0.01
     elif food_item[0] in ['chicken nuggets']:
-        close = 1.22
-        height = 0.015
+        close = 1.10
+        height = 0.012
     else:
         close = 1.1
         height = 0.01
+
+    # get the height of the food
+    height = table_depth - food_depth[2]
+    print("Height of selected food item: ", height)
+
     print("close: ", close)
-    print("height: ", height)
+    #print("height: ", height)
+
+    # gripper should go 78% of the height of the food item
+    if food_item[0] in ['suhsi']:
+        height = height*0.88
+    else:
+        height = height*0.78
+        
     return close, height
         
         

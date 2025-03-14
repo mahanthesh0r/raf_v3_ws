@@ -46,8 +46,9 @@ def main():
     recorder = sr.Recognizer()
     recorder.energy_threshold = args.energy_threshold
     # Definitely do this, dynamic energy compensation lowers the energy threshold dramatically to a point where the SpeechRecognizer never stops recording.
-    recorder.dynamic_energy_threshold = False
-
+    recorder.dynamic_energy_threshold = True
+    
+    print("Loading model...")
     # Important for linux users.
     # Prevents permanent application hang and crash by using the wrong Microphone
     if 'linux' in platform:
@@ -55,14 +56,20 @@ def main():
         if not mic_name or mic_name == 'list':
             print("Available microphone devices are: ")
             for index, name in enumerate(sr.Microphone.list_microphone_names()):
-                print(f"Microphone with name \"{name}\" found")
+                print(f"Microphone with name \"{name}\" found at index {index}")
             return
         else:
             for index, name in enumerate(sr.Microphone.list_microphone_names()):
+                print(f"Microphone with name \"{name}\" found at index {index}")
+                if name == 'TX USB Audio: - (hw:3,0)':
+                    print(f"Using microphone with name \"{name}\" and mic_name {mic_name}" )
                 if mic_name in name:
+                    print(f"Using microphone with name \"{name}\"")
+                    print(f"Microphone index is {index}")
                     source = sr.Microphone(sample_rate=16000, device_index=index)
                     break
     else:
+        print("Using default microphone")
         source = sr.Microphone(sample_rate=16000)
 
     # Load / Download model
@@ -76,6 +83,7 @@ def main():
 
     transcription = ['']
 
+    print("Calibrating microphone for ambient noise...")
     with source:
         recorder.adjust_for_ambient_noise(source)
 

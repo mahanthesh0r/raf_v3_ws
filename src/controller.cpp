@@ -527,6 +527,8 @@ bool Controller::setJointPosition(raf_v3::JointCommandRequest &request, raf_v3::
         std::cout << "Kortex exception: " << ex.what() << std::endl;
 
         std::cout << "Error sub-code: " << k_api::SubErrorCodes_Name(k_api::SubErrorCodes((ex.getErrorInfo().getError().error_sub_code()))) << std::endl;
+
+
     }
 
     auto action = k_api::Base::Action();
@@ -577,6 +579,7 @@ bool Controller::setJointPosition(raf_v3::JointCommandRequest &request, raf_v3::
 
     std::cout << "Angular movement completed" << std::endl;
     std::cout << "Promise value : " << k_api::Base::ActionEvent_Name(promise_event) << std::endl; 
+    response.success = true;
 
     return true;
 }
@@ -627,6 +630,7 @@ bool Controller::setGripper(raf_v3::GripperCommandRequest &request, raf_v3::Grip
         std::cout << "Unknown error." << std::endl;
     }
 
+    response.success = true;
     return true;
 }
 

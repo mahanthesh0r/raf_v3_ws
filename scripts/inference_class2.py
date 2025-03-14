@@ -28,7 +28,7 @@ BOX_THRESHOLD = 0.25
 WITH_SLICE_INFERENCE = False
 SLICE_WH = (480, 480)
 OVERLAP_RATIO = (0.2, 0.2)
-DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 OUTPUT_DIR = Path("outputs/grounded_sam2_dinox_demo")
 DUMP_JSON_RESULTS = True
 

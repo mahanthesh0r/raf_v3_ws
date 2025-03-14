@@ -81,6 +81,7 @@ class SkillLibrary:
 
         #width of item in cm
         width =  np.linalg.norm(width_point1-width_point2)
+        print(f"width: {width}")
         
         
         width = width*100 # convert to centimeters
@@ -99,6 +100,7 @@ class SkillLibrary:
             grip_val = 0
         
         grip_val = round(grip_val)/100
+        print(f"grip_val: {grip_val}")
 
         return grip_val
     

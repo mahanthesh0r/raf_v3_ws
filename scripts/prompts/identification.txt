@@ -1,5 +1,5 @@
 Objective: To determine the items on the plate.
-Available items: ['pretzel bites','celery', 'carrots','pretzel rods','sushi','green grapes','egg rolls','watermelon','chicken tenders', 'chocolate','single penne pasta','tomato','green vegetable','donuts','chicken nuggets', ' yellow popcorn', 'mandarin bites']
+Available items: ['pretzel bites','celery', 'carrots','pretzel rods','sushi','green grapes','watermelon','fried chicken','chicken nuggets', 'chocolate','tomato','green vegetable','donuts', ' yellow popcorn', 'mandarin bites', 'gummies', 'dumplings']
 
 
 You have been given an image.From the available items, what items are present, as a comma-separated list? Format your answer in one-line as follows: ['first_item', 'second_item', 'third_item', ...]. Do not list an item that is not in the given list of available items.
@@ -12,8 +12,8 @@ Output: ['pretezl rods','green grapes','carrots','chicken tenders']
 Input: Picture of carrots.
 Output: ['carrots']
 
-Input: Picture of pretzel rods and chicken tenders.
-Output: ['chicken tenders','pretzel rods']
+Input: Picture of pretzel rods and a donut.
+Output: ['pretzel rods','donuts']
 
-Input: Picture of celery, chicken nuggets.
-Output: ['celery','chicken nuggets']
+Input: Picture of celery, watermelon.
+Output: ['celery','watermelon']

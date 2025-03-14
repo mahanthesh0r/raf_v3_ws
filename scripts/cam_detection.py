@@ -27,6 +27,8 @@ from robot_controller.robot_controller import KinovaRobotController
 from skill_library import SkillLibrary
 import raf_utils
 import logging
+import yaml
+import asyncio
 
 
 # Initialize CvBridge
@@ -84,14 +86,13 @@ class CamDetection:
         self.skill_library.transfer_to_mouth() 
 
     def feeding(self):
-        self.robot_controller.reset()
+        asyncio.run(self.robot_controller.reset())
         #self.inference_server.clear_plate2()
         #self.inference2.detection_values()
         self.inferencefinal.clear_plate()
     
     def drinking(self):
-        self.robot_controller.move_to_cup_joint()
-        rospy.sleep(4)
+        asyncio.run(self.robot_controller.move_to_cup_joint())
         self.inferencefinal.clear_plate(cup=True)
     
     def cup_joint(self):
@@ -113,26 +114,38 @@ class CamDetection:
 
  
 def main():
+    with open("/home/labuser/raf_v3_ws/src/raf_v3/scripts/config/config.yaml", 'r') as stream:
+        try:
+            config = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            print(exc)
+
     rospy.init_node('cam_detection', anonymous=True)
     cd = CamDetection()
     raf_utils.play_sound("intro")
-    while True:
-        
-        if cd.get_command() == 'stop':
-            cd.clear_stack()
-            sys.exit(1)
-            return
-        elif cd.get_command() == 'feed':
-            print("Feeding")
-            cd.clear_stack()
-            cd.feeding()
-        elif cd.get_command() == 'drink':
-            cd.clear_stack()
-            cd.drinking()
+    if config['voice_command']:
+        while config['voice_command']:
+            
+            if cd.get_command() == 'stop':
+                cd.clear_stack()
+                sys.exit(1)
+                return
+            elif cd.get_command() == 'feed':
+                print("Feeding")
+                cd.clear_stack()
+                cd.feeding()
+            elif cd.get_command() == 'drink':
+                cd.clear_stack()
+                cd.drinking()
+    else:
+        #cd.drinking()
+        cd.feeding()
+        #cd.camera_visualize()
+    
 
         
     #cd.drinking()
-    cd.feeding()
+    #cd.feeding()
     #cd.camera_visualize()
     
     try:
