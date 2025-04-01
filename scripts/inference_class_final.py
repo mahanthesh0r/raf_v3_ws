@@ -31,6 +31,7 @@ from skill_library import SkillLibrary
 from dds_cloudapi_sdk import Config
 from dds_cloudapi_sdk import Client
 from dds_cloudapi_sdk.tasks.dinox import DinoxTask
+from dds_cloudapi_sdk.tasks.v2_task import V2Task
 from dds_cloudapi_sdk.tasks.types import DetectionTarget
 from dds_cloudapi_sdk import TextPrompt
 import pycocotools.mask as mask_util
@@ -45,8 +46,8 @@ import logging
 import ast
 import colorlog
 from raf_v3.msg import VisualServoData
-from sort import Sort
 import asyncio
+import json
 
 
 # Configure Logging
@@ -101,7 +102,7 @@ class BiteAcquisitionInference:
         self.BOX_THRESHOLD = config['BOX_THRESHOLD']
         self.camera = RealSenseROS()
         self.tf_utils = raf_utils.TFUtils()
-        self.robot_controller = KinovaRobotController()
+        self.robot_controller = KinovaRobotController("/home/labuser/raf_v3_ws/src/raf_v3/scripts/config/config.yaml")
         self.pixel_selector = PixelSelector()
         self.skill_library = SkillLibrary()
         self.dinox_api_key = os.getenv('DINOX_API_KEY')
@@ -110,14 +111,26 @@ class BiteAcquisitionInference:
         self.sam2_model_config = config['SAM2_MODEL_CONFIG']
         self.command_stack = []
         self.bite_transfer_height = config['bite_transfer_height']
+        self.onTable = config['on_table']
+        self.savedCupPosition = None
         
 
         # Publisher for the visual_servo_data topic
         self.visual_servo_pub = rospy.Publisher('visual_servo_data', VisualServoData, queue_size=10)
+        self.raf_assistant_pub = rospy.Publisher('/raf_voice_assistant', String, queue_size=10)
 
         rospy.Subscriber('speech_commands', String, self.command_callback)
+        rospy.Subscriber('/function_call', String, self.Gemini_function_callback)
         with torch.no_grad():
             torch.cuda.empty_cache()
+
+    
+
+    def Gemini_function_callback(self, msg):
+        function_name = msg.data
+        if function_name == 'Drink':
+            self.command_stack.append('drink')
+
 
     # Voice Recognition module
     def command_callback(self, msg):
@@ -162,6 +175,9 @@ class BiteAcquisitionInference:
                 self.clear_stack()
                 self.clear_plate(cup=True)
 
+    def AI_voice_prompt(self, prompt):
+        self.raf_assistant_pub.publish(f"Robot: {prompt}")
+
     # Data Logging and Results
     def logging(self, success=0, retries=0):
         log_file_path = "%s/logging.txt" % self.logging_file_path
@@ -201,30 +217,44 @@ class BiteAcquisitionInference:
         return detection_prompt
     
     def detect_food(self, image, prompt):
+        self.logger.info(f"Prompt: {prompt}")
         config = Config(self.dinox_api_key)
         client = Client(config)
         classes = [x.strip().lower() for x in prompt.split('.') if x]
         class_name_to_id = {name: id for id, name in enumerate(classes)}
         self.image_path = raf_utils.image_from_camera(image)
         image_url = client.upload_file(self.image_path)
-        task = DinoxTask(
-            image_url=image_url,
-            prompts=[TextPrompt(text=prompt)],
-            bbox_threshold=self.BOX_THRESHOLD,
-            targets=[DetectionTarget.BBox],
-        )
+       
+        # task = DinoxTask(
+        #     image_url=image_url,
+        #     prompts=[TextPrompt(text=prompt)],
+        #     bbox_threshold=self.BOX_THRESHOLD,
+        #     targets=[DetectionTarget.BBox],
+        # )
+        task = V2Task(api_path="/v2/task/dinox/detection", api_body={
+            "model":"DINO-X-1.0",
+            "image": image_url,
+            "prompt":{
+                    "type":"text",
+                    "text":prompt
+            },
+            "targets": ["bbox"],
+            "bbox_threshold": 0.25,
+            "iou_threshold": 0.8
+        })
         client.run_task(task)
         result = task.result
-        objects = result.objects
+        objects = result["objects"]
+        self.logger.debug(f"Objects: {objects}")
         input_boxes = []
         confidences = []
         class_ids = []
         class_names = []
 
         for idx, obj in enumerate(objects):
-            input_boxes.append(obj.bbox)
-            confidences.append(obj.score)
-            cls_name = obj.category.lower().strip()
+            input_boxes.append(obj['bbox'])
+            confidences.append(obj['score'])
+            cls_name = obj['category'].lower().strip()
             class_names.append(cls_name)
             class_ids.append(class_name_to_id[cls_name])
 
@@ -295,105 +325,10 @@ class BiteAcquisitionInference:
         refined_mask = cleanup_mask(binary_mask)
 
         return annotated_frame, d, refined_mask, label
-    
-
-    # def track_item(self, bbox):
-    #     camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
-    #     tracker = cv2.TrackerCSRT_create()
-    #     vis = camera_color_data.copy()
-    #     x, y, x2, y2 = map(int, bbox.xyxy[0])
-    #     width = int(x2 - x)
-    #     height = int(y2 - y)
-    #     bbox_final = (x, y, width, height)
-    #     self.logger.debug(f"bbox: {bbox_final}")
-    #     tracker.init(vis, bbox_final)
-    #     # Initialize the SAM2 for segmenting
-    #     sam2_model = build_sam2(self.sam2_model_config, self.sam2_checkpoint, device=self.DEVICE)
-    #     sam2_predictor = SAM2ImagePredictor(sam2_model)
-    #     while True:
-    #         camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
-    #         success, bbox = tracker.update(camera_color_data)
-    #         if success:
-    #             x, y, w, h = map(int, bbox)  # Unpack bbox correctly
-    #             x2, y2 = x + w, y + h  # Convert (x, y, w, h) -> (x1, y1, x2, y2)
-
-
-    #             # Draw tracking box
-    #             cv2.rectangle(camera_color_data, (x, y), (x2, y2), (0, 0, 255), 2)
-
-    #             # Segment the object
-    #             sam2_predictor.set_image(camera_color_data)
-    #             self.logger.info(f"bbox: {np.array([[x, y, x2, y2]])}")
-    #             masks, scores, logits = sam2_predictor.predict(
-    #                 point_coords=None,
-    #                 point_labels=None,
-    #                 box=np.array([[x, y, x2, y2]]),
-    #                 multimask_output=False,
-    #             )
-    #             if masks.ndim == 4:
-    #                 masks = masks.squeeze(1)
-
-    #             mask = masks[0] > 0.5
-    #             mask = masks[0].astype(bool)
-    #             camera_color_data[mask] = [0, 255, 0]
-
-    #              # Find the centroid of the mask
-    #             M = cv2.moments(mask.astype(np.uint8))
-    #             if M["m00"] > 0:
-    #                 cx = int(M["m10"] / M["m00"])
-    #                 cy = int(M["m01"] / M["m00"])
-    #                 centroid = (cx, cy)
-    #                 self.logger.info(f"Centroid: {centroid}")
-    #                 depth_value = camera_depth_data[cy, cx] / 1000.0
-
-    #                 # Publish the centroid
-    #                 centroid_msg = VisualServoData(x=cx, y=cy, depth=depth_value)
-    #                 #self.visual_servo_pub.publish(centroid_msg)
-
-    #         cv2.imshow('vis', camera_color_data)
-    #         if cv2.waitKey(1) & 0xFF == ord('q'):
-    #             break
-    #     cv2.destroyAllWindows()
-
-    def track_item(self, bbox):
-        # Initialize SORT tracker
-        tracker = Sort()
-
-        # Get initial camera frame
-        camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
-
-        # Extract bounding box coordinates
-        x, y, x2, y2 = map(int, bbox.xyxy[0])
-        width, height = x2 - x, y2 - y
-        self.logger.debug(f"Initial bbox: {(x, y, width, height)}")
-
-        while True:
-            # Get new camera frame
-            camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
-
-            # Convert bbox to (x1, y1, x2, y2, confidence) format for SORT
-            detections = np.array([[x, y, x2, y2, 1.0]])  # 1.0 is confidence score
-
-            # Update tracker with detections
-            tracked_objects = tracker.update(detections)
-
-            for obj in tracked_objects:
-                x1, y1, x2, y2, track_id = map(int, obj)
-
-                # Draw tracking box
-                cv2.rectangle(camera_color_data, (x1, y1), (x2, y2), (0, 0, 255), 2)
-                cv2.putText(camera_color_data, f'ID: {track_id}', (x1, y1 - 10),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-
-            # Show frame with tracking
-            cv2.imshow('vis', camera_color_data)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-
-        cv2.destroyAllWindows()
 
 
     def clear_plate(self, cup=False):
+        self.logger.info("Saved Cup Position: %s", self.savedCupPosition)
         camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
         if camera_color_data is None:
             self.logger.warning("No camera data received.")
@@ -402,8 +337,13 @@ class BiteAcquisitionInference:
         if not cup:
             self.logger.debug("Not a cup.")
             asyncio.run(self.robot_controller.reset())
+            camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
             food_items = self.recognize_items(camera_color_data)
-            #food_items = ["chicken tenders"]
+            print('FOOD ITEMS:', food_items)
+            #food_items = ["pretzel bites"]
+            if food_items is None:
+                self.AI_voice_prompt("I couldn't find any food on the plate.")
+                sys.exit(1)
             food_items = raf_utils.randomize_selection(food_items)
             
             category = raf_utils.get_category_from_label(food_items)
@@ -411,13 +351,20 @@ class BiteAcquisitionInference:
             
         else:
             asyncio.run(self.robot_controller.move_to_cup_joint())
+            rospy.sleep(0.8)
+            if not self.savedCupPosition is None:
+                self.get_cup_action('cup .')
+            camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
             det_prompt = 'cup .'
+            self.AI_voice_prompt("I'm picking up a cup")
 
         # Prompt DINO-X with the detection prompt
         annotated_frame, detection, mask, label = self.detect_food(camera_color_data, det_prompt)
         #self.track_item(detection)
         if annotated_frame is None or detection is None or mask is None or label is None:
+            self.AI_voice_prompt("I couldn't pick up the food. I'll try again.")
             self.logger.warning("food item not detected. Terminating Script")
+            raf_utils.save_camera_data(camera_color_data)
             self.clear_plate()
             return
         if not cup:
@@ -494,6 +441,12 @@ class BiteAcquisitionInference:
             asyncio.run(self.robot_controller.move_to_multi_bite_transfer('TALL'))
         elif category == 'multi-bite' and self.bite_transfer_height == 'SHORT':
             asyncio.run(self.robot_controller.move_to_multi_bite_transfer('SHORT'))
+        else:
+            asyncio.run(self.robot_controller.move_to_pre_calibration_pose())
+            if category == 'single-bite':
+                asyncio.run(self.robot_controller.move_to_feed_pose('CUSTOM'))
+            elif category == 'multi-bite':
+                asyncio.run(self.robot_controller.move_to_multi_bite_transfer('CUSTOM'))
         # Check for multi-bite
         while self.checkObjectGrasped():
             pass
@@ -514,7 +467,7 @@ class BiteAcquisitionInference:
             self.clear_stack()
             self.clear_plate(cup=True)
             return
-    
+        self.AI_voice_prompt(f"I can see {food_items} on the plate. I'll try pick it up")
          # Item selected for grasping
         grasp_point, centroid, yaw_angle, wp1, wp2, p1, p2 = self.calculate_grasp_point_width(food_mask, category)
         pose, width_point1, width_point2, center_point = self.get_object_position(camera_info_data, camera_depth_data, yaw_angle, grasp_point, wp1, wp2, category)
@@ -547,8 +500,10 @@ class BiteAcquisitionInference:
             asyncio.run(self.robot_controller.reset())
             self.isRetryAttempt = True
             asyncio.run(self.robot_controller.setting_gripper_value(grasp - 0.2))
+            self.AI_voice_prompt("I dropped the food. I'll try again")
             self.clear_plate()
             return
+        self.AI_voice_prompt("I'm feeding you now")
         if category == 'single-bite' and self.bite_transfer_height == 'TALL':
             asyncio.run(self.robot_controller.move_to_feed_pose('TALL'))
         elif category == 'single-bite' and self.bite_transfer_height == 'SHORT':
@@ -557,46 +512,80 @@ class BiteAcquisitionInference:
             asyncio.run(self.robot_controller.move_to_multi_bite_transfer('TALL'))
         elif category == 'multi-bite' and self.bite_transfer_height == 'SHORT':
             asyncio.run(self.robot_controller.move_to_multi_bite_transfer('SHORT'))
+        else:
+            asyncio.run(self.robot_controller.move_to_pre_calibration_pose())
+            if category == 'single-bite':
+                asyncio.run(self.robot_controller.move_to_feed_pose('CUSTOM'))
+            elif category == 'multi-bite':
+                asyncio.run(self.robot_controller.move_to_multi_bite_transfer('CUSTOM'))
+        
         while self.checkObjectGrasped():
             pass
         asyncio.run(self.robot_controller.reset())
+        rospy.sleep(1)
+        if self.get_command() == 'stop':
+            self.clear_stack()
+            sys.exit(1)
+            return
+        elif self.get_command() == 'drink':
+            self.clear_stack()
+            self.clear_plate(cup=True)
+            return
         self.clear_plate()
 
 
     
     def get_cup_action(self, det_prompt, insurance=0.985, close=1.05):
         camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
-        annotated_frame, detection, mask, label = self.detect_food(camera_color_data, det_prompt)
-        centroid = self.calculate_grasp_point_width(mask, 'drink')
-        self.logger.info(f"Centroid: {centroid}")
-        vis2 = self.draw_points(camera_color_data, centroid)
-        if not self.AUTONOMY:
-            self.show_image(vis2, "Is this the correct grasp point? ")
-        pose = self.get_object_position(camera_info_data, camera_depth_data, None, centroid, None, None, 'drink')
-        self.logger.debug(f"Pose: {pose}")
+        if self.savedCupPosition is None:
+            annotated_frame, detection, mask, label = self.detect_food(camera_color_data, det_prompt)
+            centroid = self.calculate_grasp_point_width(mask, 'drink')
+            self.logger.info(f"Centroid: {centroid}")
+            vis2 = self.draw_points(camera_color_data, centroid)
+            if not self.AUTONOMY:
+                self.show_image(vis2, "Is this the correct grasp point? ")
+            if self.savedCupPosition is None:
+                pose = self.get_object_position(camera_info_data, camera_depth_data, None, centroid, None, None, 'drink')
+                self.savedCupPosition = copy.deepcopy(pose)
+
+        self.logger.debug(f"Pose: {self.savedCupPosition}")
         asyncio.run(self.robot_controller.setting_gripper_value(0.0))
-        cup_position = copy.deepcopy(pose)
-        asyncio.run(self.robot_controller.move_to_pose(pose))
+        cup_position = copy.deepcopy(self.savedCupPosition)
+        asyncio.run(self.robot_controller.move_to_pose(self.savedCupPosition))
         if not self.AUTONOMY:
             if not raf_utils.validate_with_user("Is the robot in the correct position? "):
                 sys.exit(1)
             asyncio.run(self.robot_controller.setting_gripper_value(0.65))
             if not raf_utils.validate_with_user("Did the robot grasp the object? "):
-                pose.position.z += 0.1
-                asyncio.run(self.robot_controller.move_to_pose(pose))
+                if self.onTable:
+                     cup_position.position.z += 0.1
+                asyncio.run(self.robot_controller.move_to_pose(self.savedCupPosition))
                 self.clear_plate()
         else:
             asyncio.run(self.robot_controller.setting_gripper_value(0.65))
-        pose.position.z += 0.15
-        asyncio.run(self.robot_controller.move_to_pose(pose))
-        asyncio.run(self.robot_controller.move_to_sip_pose(self.bite_transfer_height))
-        time.sleep(5)
-        asyncio.run(self.robot_controller.move_to_cup_joint())
+        if self.onTable:
+             cup_position.position.z += 0.15
         asyncio.run(self.robot_controller.move_to_pose(cup_position))
+        #self.AI_voice_prompt("I'm feeding you a drink now")
+        if self.bite_transfer_height == 'CUSTOM':
+            asyncio.run(self.robot_controller.move_to_sip_pose('CUSTOM'))
+        else:
+            asyncio.run(self.robot_controller.move_to_sip_pose(self.bite_transfer_height))
+        time.sleep(5)
+        #asyncio.run(self.robot_controller.move_to_cup_joint())
+        asyncio.run(self.robot_controller.move_to_pose(self.savedCupPosition))
         asyncio.run(self.robot_controller.setting_gripper_value(0))
-        cup_position.position.z += 0.25
+        #cup_position.position.z += 0.25
         asyncio.run(self.robot_controller.move_to_pose(cup_position))
         asyncio.run(self.robot_controller.reset())
+        if self.get_command() == 'stop':
+            self.clear_stack()
+            sys.exit(1)
+            return
+        elif self.get_command() == 'drink':
+            self.clear_stack()
+            self.clear_plate(cup=True)
+            return
         self.clear_plate()
                 
     
@@ -607,12 +596,6 @@ class BiteAcquisitionInference:
         if not raf_utils.validate_with_user(user_validation):
             sys.exit(1)
         cv2.destroyAllWindows()
-
-
-
-
-
-
 
     def calculate_grasp_point_width(self, item_mask, category):
         if category == 'multi-bite':
@@ -704,7 +687,7 @@ class BiteAcquisitionInference:
             return
         
         if category == 'drink':
-            center_point[2] += 0.10
+            center_point[2] += 0.04
 
 
         food_transform = np.eye(4)
@@ -712,9 +695,9 @@ class BiteAcquisitionInference:
         food_transform[:3,:3] = rot
         food_base = self.tf_utils.getTransformationFromTF("base_link", "camera_link") @ food_transform
         pose = self.tf_utils.get_pose_msg_from_transform(food_base)
-        pose.position.y += self.CAMERA_OFFSET # Realsense camera offset
+        pose.position.x += self.CAMERA_OFFSET # Realsense camera offset
         pose.position.z -= self.Z_OFFSET # 0.01
-        pose.position.x += 0.002 # Tilt of realsense to kinova moves desire pos down to 0.005
+        #pose.position.x += 0.002 # Tilt of realsense to kinova moves desire pos down to 0.005
         euler_angles = euler_from_quaternion([pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w])
         roll = euler_angles[0]
         pitch = euler_angles[1]

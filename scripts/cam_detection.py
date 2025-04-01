@@ -42,13 +42,14 @@ class CamDetection:
         self.inferencefinal = BiteAcquisitionInference("/home/labuser/raf_v3_ws/src/raf_v3/scripts/config/config.yaml")
         self.inference2 = inference_class2()
         self.camera = RealSenseROS()
-        self.robot_controller = KinovaRobotController()
+        self.robot_controller = KinovaRobotController("/home/labuser/raf_v3_ws/src/raf_v3/scripts/config/config.yaml")
         self.skill_library = SkillLibrary()
           # Create a stack to store commands
         self.command_stack = []
 
          # Subscribe to the speech_commands topic
         rospy.Subscriber('speech_commands', String, self.command_callback)
+        self.raf_assistant_pub = rospy.Publisher('/raf_voice_assistant', String, queue_size=10)
 
 
     def command_callback(self, msg):
@@ -123,20 +124,24 @@ def main():
     rospy.init_node('cam_detection', anonymous=True)
     cd = CamDetection()
     raf_utils.play_sound("intro")
+    cd.raf_assistant_pub.publish("Hi there")
     if config['voice_command']:
         while config['voice_command']:
-            
             if cd.get_command() == 'stop':
                 cd.clear_stack()
                 sys.exit(1)
                 return
-            elif cd.get_command() == 'feed':
-                print("Feeding")
-                cd.clear_stack()
-                cd.feeding()
+            # elif cd.get_command() == 'feed':
+            #     print("Feeding")
+            #     cd.clear_stack()
+            #     cd.feeding()
             elif cd.get_command() == 'drink':
                 cd.clear_stack()
                 cd.drinking()
+            else:
+                #cd.clear_stack()
+                cd.feeding()
+                #cd.drinking()
     else:
         #cd.drinking()
         cd.feeding()

@@ -253,8 +253,6 @@ def pixel2World(camera_info, image_x, image_y, depth_image, box_width = 2):
     world_y = (depth / fy) * (image_y - cy)
     world_z = depth
 
-
-
     return True, np.array([world_x, world_y, world_z])
 
 
@@ -285,6 +283,10 @@ def get_category_from_label(food_classes):
             return 'multi-bite'
         else:
             return 'single-bite'
+        
+def save_camera_data(camera_data):
+    file = '/home/labuser/raf_v3_ws/src/raf_v3/scripts/img_data/'
+    cv2.imwrite(file + "_camera_color_data.jpg", camera_data)
         
         
         
@@ -328,7 +330,7 @@ def find_gripper_values(food_item,table_depth,food_depth):
         height = 0.01
 
     # get the height of the food
-    height = table_depth - food_depth[2]
+    height = abs(table_depth - food_depth[2])
     print("Height of selected food item: ", height)
 
     print("close: ", close)
@@ -387,7 +389,18 @@ def list_to_prompt_string(item):
         return ""
     return item[0] + " ."
     
-
+def getJointVelocity(current_joint, target_joint, duration):
+    joint_velocities = []
+    for i in range(len(current_joint)):
+        error = min(abs(target_joint[i] - current_joint[i]), 360 - abs((target_joint[i] - current_joint[i])))
+        
+        if not (360+target_joint[i]==current_joint[i]+error) and (current_joint[i] > target_joint[i]):
+            error = -error
+            
+        velocity = round(math.radians(error/duration), 8)
+        joint_velocities.append(velocity)
+        print("Joint velocity: ", velocity)
+    return joint_velocities
 
 class TFUtils:
     def __init__(self):

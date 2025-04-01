@@ -23,7 +23,7 @@ class SkillLibrary:
 
         self.tf_utils = utils.TFUtils()
         
-        self.robot_controller = KinovaRobotController()
+        self.robot_controller = KinovaRobotController("/home/labuser/raf_v3_ws/src/raf_v3/scripts/config/config.yaml")
 
         
 
