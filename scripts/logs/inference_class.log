@@ -1,287 +1,265 @@
-2025-04-01 01:13:21,088 - inference_class_final - INFO - Saved Cup Position: None
-2025-04-01 01:13:21,089 - inference_class_final - DEBUG - Not a cup.
-2025-04-01 01:13:22,858 - inference_class_final - INFO - Food_Classes: ['pretzel bites']
-2025-04-01 01:13:22,858 - inference_class_final - INFO - Detection Prompt: pretzel bites .
-2025-04-01 01:13:22,858 - inference_class_final - INFO - Prompt: pretzel bites .
-2025-04-01 01:13:26,944 - inference_class_final - DEBUG - Objects: [{'bbox': [600.4074096679688, 544.427978515625, 685.6019287109375, 640.6668090820312], 'category': 'pretzel bites', 'score': 0.4568943679332733}, {'bbox': [703.6177978515625, 353.8131408691406, 789.782958984375, 430.9333190917969], 'category': 'pretzel bites', 'score': 0.42679935693740845}]
-2025-04-01 01:13:30,874 - inference_class_final - DEBUG - Scores: [[0.95703125]
- [0.953125  ]]
-2025-04-01 01:13:30,874 - inference_class_final - DEBUG - Index: 0 : [0.95703125]
-2025-04-01 01:13:30,874 - inference_class_final - DEBUG - confidence: 0.4568943679332733
-2025-04-01 01:13:30,875 - inference_class_final - DEBUG - Detec Box: [600.40740967 544.42797852 685.60192871 640.66680908]
-2025-04-01 01:13:30,893 - inference_class_final - DEBUG - Label: pretzel bites: 0.46
-2025-04-01 01:13:30,896 - inference_class_final - INFO - labels: pretzel bites: 0.46
-2025-04-01 01:13:30,897 - inference_class_final - INFO - Saved Cup Position: None
-2025-04-01 01:13:36,245 - inference_class_final - INFO - Prompt: cup .
-2025-04-01 01:13:40,509 - inference_class_final - DEBUG - Objects: [{'bbox': [717.5592651367188, 292.51910400390625, 881.2032470703125, 523.1321411132812], 'category': 'cup', 'score': 0.9099069833755493}]
-2025-04-01 01:13:43,569 - inference_class_final - DEBUG - Scores: [0.984375]
-2025-04-01 01:13:43,569 - inference_class_final - DEBUG - Index: 0 : 0.984375
-2025-04-01 01:13:43,569 - inference_class_final - DEBUG - confidence: 0.9099069833755493
-2025-04-01 01:13:43,570 - inference_class_final - DEBUG - Detec Box: [717.55926514 292.519104   881.20324707 523.13214111]
-2025-04-01 01:13:43,586 - inference_class_final - DEBUG - Label: cup: 0.91
-2025-04-01 01:13:43,590 - inference_class_final - INFO - labels: cup: 0.91
-2025-04-01 01:13:43,590 - inference_class_final - DEBUG - Cup detected.
-2025-04-01 01:13:43,590 - inference_class_final - INFO - Prompt: cup: 0.91
-2025-04-01 01:13:47,655 - inference_class_final - DEBUG - Objects: [{'bbox': [717.3272705078125, 292.0826110839844, 880.8871459960938, 523.2099609375], 'category': 'cup: 0', 'score': 0.8749346137046814}]
-2025-04-01 01:13:50,443 - inference_class_final - DEBUG - Scores: [0.984375]
-2025-04-01 01:13:50,443 - inference_class_final - DEBUG - Index: 0 : 0.984375
-2025-04-01 01:13:50,443 - inference_class_final - DEBUG - confidence: 0.8749346137046814
-2025-04-01 01:13:50,444 - inference_class_final - DEBUG - Detec Box: [717.32727051 292.08261108 880.887146   523.20996094]
-2025-04-01 01:13:50,464 - inference_class_final - DEBUG - Label: cup: 0: 0.87
-2025-04-01 01:13:50,496 - inference_class_final - INFO - Centroid: (800, 400)
-2025-04-01 01:13:50,527 - inference_class_final - DEBUG - Pose: position: 
-  x: 0.8887599444112437
-  y: -0.06065702571714457
-  z: 0.03879740015083937
-orientation: 
-  x: 0.6818458563532718
-  y: 0.37096068269198273
-  z: 0.3194024393404521
-  w: 0.5435590876932703
-2025-04-01 01:14:21,518 - inference_class_final - INFO - Saved Cup Position: position: 
-  x: 0.8887599444112437
-  y: -0.06065702571714457
-  z: 0.03879740015083937
-orientation: 
-  x: 0.6818458563532718
-  y: 0.37096068269198273
-  z: 0.3194024393404521
-  w: 0.5435590876932703
-2025-04-01 01:14:21,519 - inference_class_final - DEBUG - Not a cup.
-2025-04-01 01:14:23,762 - inference_class_final - INFO - Food_Classes: ['pretzel bites']
-2025-04-01 01:14:23,763 - inference_class_final - INFO - Detection Prompt: pretzel bites .
-2025-04-01 01:14:23,763 - inference_class_final - INFO - Prompt: pretzel bites .
-2025-04-01 01:14:27,182 - inference_class_final - DEBUG - Objects: [{'bbox': [600.5751953125, 544.04638671875, 685.573486328125, 639.56494140625], 'category': 'pretzel bites', 'score': 0.45181018114089966}, {'bbox': [703.8997802734375, 353.2408142089844, 789.8153076171875, 430.1324768066406], 'category': 'pretzel bites', 'score': 0.4148988425731659}]
-2025-04-01 01:14:29,837 - inference_class_final - DEBUG - Scores: [[0.9609375 ]
+2025-04-13 23:37:59,429 - inference_class_final - INFO - Saved Cup Position: None
+2025-04-13 23:37:59,429 - inference_class_final - DEBUG - Not a cup.
+2025-04-13 23:38:00,965 - inference_class_final - INFO - Recognized food items: ['pretzel bites', 'green grapes']
+2025-04-13 23:38:00,965 - inference_class_final - INFO - Food_Classes: ['pretzel bites']
+2025-04-13 23:38:00,966 - inference_class_final - INFO - Detection Prompt: pretzel bites .
+2025-04-13 23:38:00,966 - inference_class_final - INFO - Prompt: pretzel bites .
+2025-04-13 23:38:05,116 - inference_class_final - DEBUG - Objects: [{'bbox': [572.427001953125, 582.1494140625, 652.5594482421875, 668.1475830078125], 'category': 'pretzel bites', 'score': 0.4624730348587036}, {'bbox': [656.790283203125, 646.3438110351562, 741.2472534179688, 710.0722045898438], 'category': 'pretzel bites', 'score': 0.4484262764453888}, {'bbox': [869.8023681640625, 575.1270141601562, 949.3858642578125, 644.5525512695312], 'category': 'pretzel bites', 'score': 0.4481847584247589}, {'bbox': [728.3511962890625, 169.51239013671875, 809.6636352539062, 269.50347900390625], 'category': 'pretzel bites', 'score': 0.39140594005584717}]
+2025-04-13 23:38:07,759 - inference_class_final - DEBUG - Scores: [[0.953125  ]
+ [0.94140625]
+ [0.953125  ]
+ [0.9453125 ]]
+2025-04-13 23:38:07,759 - inference_class_final - DEBUG - Index: 0 : [0.953125]
+2025-04-13 23:38:07,760 - inference_class_final - DEBUG - confidence: 0.4624730348587036
+2025-04-13 23:38:07,760 - inference_class_final - DEBUG - Detec Box: [572.42700195 582.14941406 652.55944824 668.14758301]
+2025-04-13 23:38:07,783 - inference_class_final - DEBUG - Label: pretzel bites: 0.46
+2025-04-13 23:38:07,786 - inference_class_final - INFO - labels: pretzel bites: 0.46
+2025-04-13 23:38:08,905 - inference_class_final - DEBUG - Gripper Width: 0.8
+2025-04-13 23:40:54,738 - inference_class_final - INFO - Saved Cup Position: None
+2025-04-13 23:40:54,739 - inference_class_final - DEBUG - Not a cup.
+2025-04-13 23:40:55,832 - inference_class_final - INFO - Recognized food items: ['pretzel bites', 'green grapes']
+2025-04-13 23:40:55,832 - inference_class_final - INFO - Food_Classes: ['pretzel bites']
+2025-04-13 23:40:55,833 - inference_class_final - INFO - Detection Prompt: pretzel bites .
+2025-04-13 23:40:55,833 - inference_class_final - INFO - Prompt: pretzel bites .
+2025-04-13 23:41:00,449 - inference_class_final - DEBUG - Objects: [{'bbox': [509.0203857421875, 368.7230529785156, 605.49072265625, 463.9298095703125], 'category': 'pretzel bites', 'score': 0.5154370069503784}, {'bbox': [656.1868896484375, 646.8490600585938, 752.91845703125, 719.8060913085938], 'category': 'pretzel bites', 'score': 0.46733176708221436}, {'bbox': [869.55859375, 575.4564208984375, 949.2919921875, 645.3527221679688], 'category': 'pretzel bites', 'score': 0.4658734202384949}, {'bbox': [728.2034912109375, 169.66026306152344, 809.4213256835938, 269.9043884277344], 'category': 'pretzel bites', 'score': 0.45060110092163086}]
+2025-04-13 23:41:04,213 - inference_class_final - DEBUG - Scores: [[0.94921875]
+ [0.94140625]
+ [0.953125  ]
+ [0.9453125 ]]
+2025-04-13 23:41:04,213 - inference_class_final - DEBUG - Index: 0 : [0.94921875]
+2025-04-13 23:41:04,214 - inference_class_final - DEBUG - confidence: 0.5154370069503784
+2025-04-13 23:41:04,215 - inference_class_final - DEBUG - Detec Box: [509.02038574 368.72305298 605.49072266 463.92980957]
+2025-04-13 23:41:04,234 - inference_class_final - DEBUG - Label: pretzel bites: 0.52
+2025-04-13 23:41:04,238 - inference_class_final - INFO - labels: pretzel bites: 0.52
+2025-04-13 23:41:05,365 - inference_class_final - DEBUG - Gripper Width: 0.8
+2025-04-13 23:41:09,854 - inference_class_final - INFO - Selected food item: grapes
+2025-04-13 23:41:22,380 - inference_class_final - INFO - Selected food item: bites
+2025-04-13 23:45:11,010 - inference_class_final - INFO - Saved Cup Position: None
+2025-04-13 23:45:11,010 - inference_class_final - DEBUG - Not a cup.
+2025-04-13 23:45:12,311 - inference_class_final - INFO - Recognized food items: ['pretzel bites', 'green grapes']
+2025-04-13 23:45:12,311 - inference_class_final - INFO - Food_Classes: ['pretzel bites']
+2025-04-13 23:45:12,311 - inference_class_final - INFO - Detection Prompt: pretzel bites .
+2025-04-13 23:45:12,311 - inference_class_final - INFO - Prompt: pretzel bites .
+2025-04-13 23:45:16,437 - inference_class_final - DEBUG - Objects: [{'bbox': [522.5545043945312, 425.5311279296875, 600.1832275390625, 509.38531494140625], 'category': 'pretzel bites', 'score': 0.5460120439529419}, {'bbox': [870.1525268554688, 575.2453002929688, 949.399169921875, 644.8798828125], 'category': 'pretzel bites', 'score': 0.5119606256484985}, {'bbox': [656.3819580078125, 646.5323486328125, 753.3291625976562, 719.8107299804688], 'category': 'pretzel bites', 'score': 0.501983642578125}, {'bbox': [728.6023559570312, 169.76133728027344, 809.68408203125, 267.6667785644531], 'category': 'pretzel bites', 'score': 0.47219666838645935}]
+2025-04-13 23:45:19,001 - inference_class_final - DEBUG - Scores: [[0.95703125]
+ [0.953125  ]
+ [0.9453125 ]
+ [0.94921875]]
+2025-04-13 23:45:19,002 - inference_class_final - DEBUG - Index: 0 : [0.95703125]
+2025-04-13 23:45:19,002 - inference_class_final - DEBUG - confidence: 0.5460120439529419
+2025-04-13 23:45:19,002 - inference_class_final - DEBUG - Detec Box: [522.55450439 425.53112793 600.18322754 509.38531494]
+2025-04-13 23:45:19,022 - inference_class_final - DEBUG - Label: pretzel bites: 0.55
+2025-04-13 23:45:19,025 - inference_class_final - INFO - labels: pretzel bites: 0.55
+2025-04-13 23:45:20,138 - inference_class_final - DEBUG - Gripper Width: 0.8
+2025-04-13 23:45:32,200 - inference_class_final - INFO - Selected food item: select_food_item#grapes
+2025-04-13 23:45:58,966 - inference_class_final - INFO - Saved Cup Position: None
+2025-04-13 23:45:58,966 - inference_class_final - DEBUG - Not a cup.
+2025-04-13 23:46:09,989 - inference_class_final - INFO - Saved Cup Position: None
+2025-04-13 23:46:09,989 - inference_class_final - DEBUG - Not a cup.
+2025-04-13 23:46:11,833 - inference_class_final - INFO - Recognized food items: ['pretzel bites', 'green grapes']
+2025-04-13 23:46:11,833 - inference_class_final - INFO - Food_Classes: ['green grapes']
+2025-04-13 23:46:11,834 - inference_class_final - INFO - Detection Prompt: green grapes .
+2025-04-13 23:46:11,834 - inference_class_final - INFO - Prompt: green grapes .
+2025-04-13 23:46:15,038 - inference_class_final - DEBUG - Objects: [{'bbox': [924.9368286132812, 382.52410888671875, 1006.358642578125, 464.9602966308594], 'category': 'green grapes', 'score': 0.5170831680297852}, {'bbox': [691.0904541015625, 423.73095703125, 774.2999877929688, 512.076416015625], 'category': 'green grapes', 'score': 0.4725617468357086}]
+2025-04-13 23:46:15,921 - inference_class_final - INFO - Selected food item: grapes
+2025-04-13 23:46:18,863 - inference_class_final - DEBUG - Scores: [[0.9609375 ]
  [0.95703125]]
-2025-04-01 01:14:29,838 - inference_class_final - DEBUG - Index: 0 : [0.9609375]
-2025-04-01 01:14:29,838 - inference_class_final - DEBUG - confidence: 0.45181018114089966
-2025-04-01 01:14:29,838 - inference_class_final - DEBUG - Detec Box: [600.57519531 544.04638672 685.57348633 639.56494141]
-2025-04-01 01:14:29,859 - inference_class_final - DEBUG - Label: pretzel bites: 0.45
-2025-04-01 01:14:29,871 - inference_class_final - INFO - labels: pretzel bites: 0.45
-2025-04-01 01:14:31,000 - inference_class_final - DEBUG - Gripper Width: 0.81
-2025-04-01 01:15:07,272 - inference_class_final - INFO - Saved Cup Position: position: 
-  x: 0.8887599444112437
-  y: -0.06065702571714457
-  z: 0.03879740015083937
-orientation: 
-  x: 0.6818458563532718
-  y: 0.37096068269198273
-  z: 0.3194024393404521
-  w: 0.5435590876932703
-2025-04-01 01:15:07,272 - inference_class_final - DEBUG - Not a cup.
-2025-04-01 01:15:09,153 - inference_class_final - INFO - Food_Classes: ['pretzel bites']
-2025-04-01 01:15:09,153 - inference_class_final - INFO - Detection Prompt: pretzel bites .
-2025-04-01 01:15:09,154 - inference_class_final - INFO - Prompt: pretzel bites .
-2025-04-01 01:15:12,112 - inference_class_final - DEBUG - Objects: [{'bbox': [494.3790283203125, 351.88665771484375, 592.530029296875, 440.4543762207031], 'category': 'pretzel bites', 'score': 0.5389832258224487}, {'bbox': [698.3687744140625, 395.2142639160156, 782.2644653320312, 469.2806701660156], 'category': 'pretzel bites', 'score': 0.4881613850593567}]
-2025-04-01 01:15:39,400 - inference_class_final - DEBUG - Scores: [[0.95703125]
- [0.953125  ]]
-2025-04-01 01:15:39,401 - inference_class_final - DEBUG - Index: 0 : [0.95703125]
-2025-04-01 01:15:39,401 - inference_class_final - DEBUG - confidence: 0.5389832258224487
-2025-04-01 01:15:39,402 - inference_class_final - DEBUG - Detec Box: [494.37902832 351.88665771 592.5300293  440.45437622]
-2025-04-01 01:15:39,426 - inference_class_final - DEBUG - Label: pretzel bites: 0.54
-2025-04-01 01:15:39,439 - inference_class_final - INFO - labels: pretzel bites: 0.54
-2025-04-01 01:15:40,600 - inference_class_final - DEBUG - Gripper Width: 0.8
-2025-04-01 01:16:22,880 - inference_class_final - INFO - Saved Cup Position: position: 
-  x: 0.8887599444112437
-  y: -0.06065702571714457
-  z: 0.03879740015083937
-orientation: 
-  x: 0.6818458563532718
-  y: 0.37096068269198273
-  z: 0.3194024393404521
-  w: 0.5435590876932703
-2025-04-01 01:16:28,229 - inference_class_final - DEBUG - Pose: position: 
-  x: 0.8887599444112437
-  y: -0.06065702571714457
-  z: 0.03879740015083937
-orientation: 
-  x: 0.6818458563532718
-  y: 0.37096068269198273
-  z: 0.3194024393404521
-  w: 0.5435590876932703
-2025-04-01 01:16:59,207 - inference_class_final - INFO - Saved Cup Position: position: 
-  x: 0.8887599444112437
-  y: -0.06065702571714457
-  z: 0.03879740015083937
-orientation: 
-  x: 0.6818458563532718
-  y: 0.37096068269198273
-  z: 0.3194024393404521
-  w: 0.5435590876932703
-2025-04-01 01:17:04,557 - inference_class_final - DEBUG - Pose: position: 
-  x: 0.8887599444112437
-  y: -0.06065702571714457
-  z: 0.03879740015083937
-orientation: 
-  x: 0.6818458563532718
-  y: 0.37096068269198273
-  z: 0.3194024393404521
-  w: 0.5435590876932703
-2025-04-01 01:17:35,584 - inference_class_final - INFO - Saved Cup Position: position: 
-  x: 0.8887599444112437
-  y: -0.06065702571714457
-  z: 0.03879740015083937
-orientation: 
-  x: 0.6818458563532718
-  y: 0.37096068269198273
-  z: 0.3194024393404521
-  w: 0.5435590876932703
-2025-04-01 01:17:35,584 - inference_class_final - DEBUG - Not a cup.
-2025-04-01 01:17:36,965 - inference_class_final - INFO - Food_Classes: ['pretzel bites']
-2025-04-01 01:17:36,965 - inference_class_final - INFO - Detection Prompt: pretzel bites .
-2025-04-01 01:17:36,965 - inference_class_final - INFO - Prompt: pretzel bites .
-2025-04-01 01:17:41,273 - inference_class_final - DEBUG - Objects: [{'bbox': [740.039306640625, 346.8275146484375, 817.33544921875, 434.5016784667969], 'category': 'pretzel bites', 'score': 0.44625335931777954}, {'bbox': [799.6233520507812, 527.3158569335938, 886.109375, 626.8505249023438], 'category': 'pretzel bites', 'score': 0.4234579801559448}]
-2025-04-01 01:17:43,498 - inference_class_final - DEBUG - Scores: [[0.94921875]
- [0.94921875]]
-2025-04-01 01:17:43,499 - inference_class_final - DEBUG - Index: 0 : [0.94921875]
-2025-04-01 01:17:43,499 - inference_class_final - DEBUG - confidence: 0.44625335931777954
-2025-04-01 01:17:43,499 - inference_class_final - DEBUG - Detec Box: [740.03930664 346.82751465 817.33544922 434.50167847]
-2025-04-01 01:17:43,516 - inference_class_final - DEBUG - Label: pretzel bites: 0.45
-2025-04-01 01:17:43,524 - inference_class_final - INFO - labels: pretzel bites: 0.45
-2025-04-01 01:20:54,075 - inference_class_final - INFO - Saved Cup Position: None
-2025-04-01 01:20:54,075 - inference_class_final - DEBUG - Not a cup.
-2025-04-01 01:20:56,216 - inference_class_final - INFO - Food_Classes: ['pretzel bites']
-2025-04-01 01:20:56,216 - inference_class_final - INFO - Detection Prompt: pretzel bites .
-2025-04-01 01:20:56,216 - inference_class_final - INFO - Prompt: pretzel bites .
-2025-04-01 01:21:00,318 - inference_class_final - DEBUG - Objects: [{'bbox': [740.1136474609375, 347.4563293457031, 817.5426025390625, 435.2068786621094], 'category': 'pretzel bites', 'score': 0.43398144841194153}, {'bbox': [799.8900146484375, 527.7171630859375, 886.1134033203125, 627.510498046875], 'category': 'pretzel bites', 'score': 0.4153730273246765}]
-2025-04-01 01:21:03,832 - inference_class_final - DEBUG - Scores: [[0.94921875]
- [0.94921875]]
-2025-04-01 01:21:03,832 - inference_class_final - DEBUG - Index: 0 : [0.94921875]
-2025-04-01 01:21:03,832 - inference_class_final - DEBUG - confidence: 0.43398144841194153
-2025-04-01 01:21:03,834 - inference_class_final - DEBUG - Detec Box: [740.11364746 347.45632935 817.54260254 435.20687866]
-2025-04-01 01:21:03,852 - inference_class_final - DEBUG - Label: pretzel bites: 0.43
-2025-04-01 01:21:03,855 - inference_class_final - INFO - labels: pretzel bites: 0.43
-2025-04-01 01:21:03,856 - inference_class_final - INFO - Saved Cup Position: None
-2025-04-01 01:21:09,202 - inference_class_final - INFO - Prompt: cup .
-2025-04-01 01:21:13,007 - inference_class_final - DEBUG - Objects: [{'bbox': [739.6890869140625, 292.302001953125, 906.01171875, 526.0997314453125], 'category': 'cup', 'score': 0.9252299070358276}]
-2025-04-01 01:21:15,357 - inference_class_final - DEBUG - Scores: [0.984375]
-2025-04-01 01:21:15,357 - inference_class_final - DEBUG - Index: 0 : 0.984375
-2025-04-01 01:21:15,357 - inference_class_final - DEBUG - confidence: 0.9252299070358276
-2025-04-01 01:21:15,358 - inference_class_final - DEBUG - Detec Box: [739.68908691 292.30200195 906.01171875 526.09973145]
-2025-04-01 01:21:15,375 - inference_class_final - DEBUG - Label: cup: 0.93
-2025-04-01 01:21:15,378 - inference_class_final - INFO - labels: cup: 0.93
-2025-04-01 01:21:15,378 - inference_class_final - DEBUG - Cup detected.
-2025-04-01 01:21:15,378 - inference_class_final - INFO - Prompt: cup: 0.93
-2025-04-01 01:21:19,947 - inference_class_final - DEBUG - Objects: [{'bbox': [739.6481323242188, 292.3464050292969, 906.4016723632812, 526.1720581054688], 'category': 'cup: 0', 'score': 0.9032942056655884}]
-2025-04-01 01:21:21,875 - inference_class_final - DEBUG - Scores: [0.984375]
-2025-04-01 01:21:21,876 - inference_class_final - DEBUG - Index: 0 : 0.984375
-2025-04-01 01:21:21,876 - inference_class_final - DEBUG - confidence: 0.9032942056655884
-2025-04-01 01:21:21,876 - inference_class_final - DEBUG - Detec Box: [739.64813232 292.34640503 906.40167236 526.17205811]
-2025-04-01 01:21:21,900 - inference_class_final - DEBUG - Label: cup: 0: 0.90
-2025-04-01 01:21:21,916 - inference_class_final - INFO - Centroid: (823, 401)
-2025-04-01 01:21:21,917 - inference_class_final - DEBUG - Pose: position: 
-  x: 0.8786361012269348
-  y: -0.06584959103747393
-  z: 0.039408585587729354
-orientation: 
-  x: 0.68184731052016
-  y: 0.370958245803423
-  z: 0.31940286347763563
-  w: 0.5435586774297313
-2025-04-01 01:21:51,612 - inference_class_final - INFO - Saved Cup Position: position: 
-  x: 0.8786361012269348
-  y: -0.06584959103747393
-  z: 0.039408585587729354
-orientation: 
-  x: 0.68184731052016
-  y: 0.370958245803423
-  z: 0.31940286347763563
-  w: 0.5435586774297313
-2025-04-01 01:21:56,955 - inference_class_final - DEBUG - Pose: position: 
-  x: 0.8786361012269348
-  y: -0.06584959103747393
-  z: 0.039408585587729354
-orientation: 
-  x: 0.68184731052016
-  y: 0.370958245803423
-  z: 0.31940286347763563
-  w: 0.5435586774297313
-2025-04-01 01:22:26,657 - inference_class_final - INFO - Saved Cup Position: position: 
-  x: 0.8786361012269348
-  y: -0.06584959103747393
-  z: 0.039408585587729354
-orientation: 
-  x: 0.68184731052016
-  y: 0.370958245803423
-  z: 0.31940286347763563
-  w: 0.5435586774297313
-2025-04-01 01:22:26,657 - inference_class_final - DEBUG - Not a cup.
-2025-04-01 01:22:28,537 - inference_class_final - INFO - Food_Classes: ['pretzel bites']
-2025-04-01 01:22:28,537 - inference_class_final - INFO - Detection Prompt: pretzel bites .
-2025-04-01 01:22:28,538 - inference_class_final - INFO - Prompt: pretzel bites .
-2025-04-01 01:22:32,678 - inference_class_final - DEBUG - Objects: [{'bbox': [740.1044921875, 346.954345703125, 817.4090576171875, 434.538818359375], 'category': 'pretzel bites', 'score': 0.4472188949584961}, {'bbox': [799.7701416015625, 527.19921875, 885.9091796875, 626.7679443359375], 'category': 'pretzel bites', 'score': 0.4392662048339844}]
-2025-04-01 01:22:34,601 - inference_class_final - DEBUG - Scores: [[0.94921875]
- [0.94921875]]
-2025-04-01 01:22:34,601 - inference_class_final - DEBUG - Index: 0 : [0.94921875]
-2025-04-01 01:22:34,601 - inference_class_final - DEBUG - confidence: 0.4472188949584961
-2025-04-01 01:22:34,602 - inference_class_final - DEBUG - Detec Box: [740.10449219 346.9543457  817.40905762 434.53881836]
-2025-04-01 01:22:34,620 - inference_class_final - DEBUG - Label: pretzel bites: 0.45
-2025-04-01 01:22:34,623 - inference_class_final - INFO - labels: pretzel bites: 0.45
-2025-04-01 01:22:34,625 - inference_class_final - INFO - Saved Cup Position: position: 
-  x: 0.8786361012269348
-  y: -0.06584959103747393
-  z: 0.039408585587729354
-orientation: 
-  x: 0.68184731052016
-  y: 0.370958245803423
-  z: 0.31940286347763563
-  w: 0.5435586774297313
-2025-04-01 01:22:39,963 - inference_class_final - DEBUG - Pose: position: 
-  x: 0.8786361012269348
-  y: -0.06584959103747393
-  z: 0.039408585587729354
-orientation: 
-  x: 0.68184731052016
-  y: 0.370958245803423
-  z: 0.31940286347763563
-  w: 0.5435586774297313
-2025-04-01 01:23:09,660 - inference_class_final - INFO - Saved Cup Position: position: 
-  x: 0.8786361012269348
-  y: -0.06584959103747393
-  z: 0.039408585587729354
-orientation: 
-  x: 0.68184731052016
-  y: 0.370958245803423
-  z: 0.31940286347763563
-  w: 0.5435586774297313
-2025-04-01 01:23:09,660 - inference_class_final - DEBUG - Not a cup.
-2025-04-01 01:23:11,651 - inference_class_final - INFO - Food_Classes: ['pretzel bites']
-2025-04-01 01:23:11,652 - inference_class_final - INFO - Detection Prompt: pretzel bites .
-2025-04-01 01:23:11,652 - inference_class_final - INFO - Prompt: pretzel bites .
-2025-04-01 01:23:16,544 - inference_class_final - DEBUG - Objects: [{'bbox': [740.0731201171875, 347.17864990234375, 817.4371337890625, 434.84149169921875], 'category': 'pretzel bites', 'score': 0.4390257000923157}, {'bbox': [800.349853515625, 527.7852783203125, 885.568359375, 626.42529296875], 'category': 'pretzel bites', 'score': 0.4177464544773102}]
-2025-04-01 01:23:18,384 - inference_class_final - DEBUG - Scores: [[0.953125]
- [0.953125]]
-2025-04-01 01:23:18,384 - inference_class_final - DEBUG - Index: 0 : [0.953125]
-2025-04-01 01:23:18,385 - inference_class_final - DEBUG - confidence: 0.4390257000923157
-2025-04-01 01:23:18,385 - inference_class_final - DEBUG - Detec Box: [740.07312012 347.1786499  817.43713379 434.8414917 ]
-2025-04-01 01:23:18,404 - inference_class_final - DEBUG - Label: pretzel bites: 0.44
-2025-04-01 01:23:18,415 - inference_class_final - INFO - labels: pretzel bites: 0.44
-2025-04-01 01:23:18,416 - inference_class_final - INFO - Saved Cup Position: position: 
-  x: 0.8786361012269348
-  y: -0.06584959103747393
-  z: 0.039408585587729354
-orientation: 
-  x: 0.68184731052016
-  y: 0.370958245803423
-  z: 0.31940286347763563
-  w: 0.5435586774297313
-2025-04-01 01:23:23,762 - inference_class_final - DEBUG - Pose: position: 
-  x: 0.8786361012269348
-  y: -0.06584959103747393
-  z: 0.039408585587729354
-orientation: 
-  x: 0.68184731052016
-  y: 0.370958245803423
-  z: 0.31940286347763563
-  w: 0.5435586774297313
-2025-04-01 01:23:53,439 - inference_class_final - INFO - Saved Cup Position: position: 
-  x: 0.8786361012269348
-  y: -0.06584959103747393
-  z: 0.039408585587729354
-orientation: 
-  x: 0.68184731052016
-  y: 0.370958245803423
-  z: 0.31940286347763563
-  w: 0.5435586774297313
-2025-04-01 01:23:53,439 - inference_class_final - DEBUG - Not a cup.
+2025-04-13 23:46:18,863 - inference_class_final - DEBUG - Index: 0 : [0.9609375]
+2025-04-13 23:46:18,863 - inference_class_final - DEBUG - confidence: 0.5170831680297852
+2025-04-13 23:46:18,864 - inference_class_final - DEBUG - Detec Box: [ 924.93682861  382.52410889 1006.35864258  464.96029663]
+2025-04-13 23:46:18,881 - inference_class_final - DEBUG - Label: green grapes: 0.52
+2025-04-13 23:46:18,891 - inference_class_final - INFO - labels: green grapes: 0.52
+2025-04-13 23:46:20,015 - inference_class_final - DEBUG - Gripper Width: 0.74
+2025-04-13 23:46:28,840 - inference_class_final - INFO - Selected food item: pretzel bites
+2025-04-13 23:46:38,815 - inference_class_final - INFO - Selected food item: pretzel bites
+2025-04-13 23:46:46,472 - inference_class_final - INFO - Selected food item: donuts
+2025-04-13 23:47:06,472 - inference_class_final - INFO - Saved Cup Position: None
+2025-04-13 23:47:06,472 - inference_class_final - DEBUG - Not a cup.
+2025-04-13 23:47:08,099 - inference_class_final - INFO - Recognized food items: ['pretzel bites', 'green grapes']
+2025-04-13 23:47:08,099 - inference_class_final - INFO - Food_Classes: ['green grapes']
+2025-04-13 23:47:08,099 - inference_class_final - INFO - Detection Prompt: green grapes .
+2025-04-13 23:47:08,100 - inference_class_final - INFO - Prompt: green grapes .
+2025-04-13 23:47:11,961 - inference_class_final - DEBUG - Objects: [{'bbox': [485.637451171875, 577.7454833984375, 560.585205078125, 663.27099609375], 'category': 'green grapes', 'score': 0.5684158205986023}, {'bbox': [690.9189453125, 423.6338806152344, 774.5488891601562, 512.064208984375], 'category': 'green grapes', 'score': 0.5005455017089844}]
+2025-04-13 23:47:14,128 - inference_class_final - DEBUG - Scores: [[0.95703125]
+ [0.95703125]]
+2025-04-13 23:47:14,129 - inference_class_final - DEBUG - Index: 0 : [0.95703125]
+2025-04-13 23:47:14,129 - inference_class_final - DEBUG - confidence: 0.5684158205986023
+2025-04-13 23:47:14,129 - inference_class_final - DEBUG - Detec Box: [485.63745117 577.7454834  560.58520508 663.27099609]
+2025-04-13 23:47:14,149 - inference_class_final - DEBUG - Label: green grapes: 0.57
+2025-04-13 23:47:14,158 - inference_class_final - INFO - labels: green grapes: 0.57
+2025-04-13 23:51:19,817 - inference_class_final - INFO - Saved Cup Position: None
+2025-04-13 23:51:19,817 - inference_class_final - DEBUG - Not a cup.
+2025-04-13 23:51:21,659 - inference_class_final - INFO - Recognized food items: ['pretzel bites', 'green grapes']
+2025-04-13 23:51:21,659 - inference_class_final - INFO - Food_Classes: ['green grapes']
+2025-04-13 23:51:21,659 - inference_class_final - INFO - Detection Prompt: green grapes .
+2025-04-13 23:51:21,659 - inference_class_final - INFO - Prompt: green grapes .
+2025-04-13 23:51:25,711 - inference_class_final - DEBUG - Objects: [{'bbox': [485.6468200683594, 577.7080688476562, 560.4818115234375, 663.6365356445312], 'category': 'green grapes', 'score': 0.5176928043365479}, {'bbox': [690.7752685546875, 423.6419982910156, 774.3182373046875, 512.090087890625], 'category': 'green grapes', 'score': 0.48133188486099243}]
+2025-04-13 23:51:29,334 - inference_class_final - DEBUG - Scores: [[0.95703125]
+ [0.95703125]]
+2025-04-13 23:51:29,334 - inference_class_final - DEBUG - Index: 0 : [0.95703125]
+2025-04-13 23:51:29,334 - inference_class_final - DEBUG - confidence: 0.5176928043365479
+2025-04-13 23:51:29,336 - inference_class_final - DEBUG - Detec Box: [485.64682007 577.70806885 560.48181152 663.63653564]
+2025-04-13 23:51:29,355 - inference_class_final - DEBUG - Label: green grapes: 0.52
+2025-04-13 23:51:29,359 - inference_class_final - INFO - labels: green grapes: 0.52
+2025-04-13 23:51:30,489 - inference_class_final - DEBUG - Gripper Width: 0.74
+2025-04-13 23:51:37,374 - inference_class_final - INFO - Selected food item: pretzel bites
+2025-04-13 23:51:54,816 - inference_class_final - INFO - Saved Cup Position: None
+2025-04-13 23:51:54,816 - inference_class_final - DEBUG - Not a cup.
+2025-04-13 23:51:56,189 - inference_class_final - INFO - Recognized food items: ['pretzel bites', 'green grapes']
+2025-04-13 23:51:56,189 - inference_class_final - INFO - User selected food item: ['pretzel bites']
+2025-04-13 23:51:56,189 - inference_class_final - INFO - Food_Classes: ['pretzel bites']
+2025-04-13 23:51:56,190 - inference_class_final - INFO - Detection Prompt: pretzel bites .
+2025-04-13 23:51:56,190 - inference_class_final - INFO - Prompt: pretzel bites .
+2025-04-13 23:52:00,705 - inference_class_final - DEBUG - Objects: [{'bbox': [520.0341186523438, 401.6173400878906, 616.6376953125, 498.27685546875], 'category': 'pretzel bites', 'score': 0.5048521161079407}, {'bbox': [875.982666015625, 571.07373046875, 955.6898193359375, 640.984130859375], 'category': 'pretzel bites', 'score': 0.47597065567970276}, {'bbox': [729.2320556640625, 167.7523651123047, 810.682373046875, 264.95196533203125], 'category': 'pretzel bites', 'score': 0.4641728699207306}, {'bbox': [663.8580932617188, 645.2262573242188, 741.9326171875, 708.10205078125], 'category': 'pretzel bites', 'score': 0.45568299293518066}]
+2025-04-13 23:52:03,180 - inference_class_final - DEBUG - Scores: [[0.94921875]
+ [0.953125  ]
+ [0.94921875]
+ [0.94140625]]
+2025-04-13 23:52:03,180 - inference_class_final - DEBUG - Index: 0 : [0.94921875]
+2025-04-13 23:52:03,180 - inference_class_final - DEBUG - confidence: 0.5048521161079407
+2025-04-13 23:52:03,181 - inference_class_final - DEBUG - Detec Box: [520.03411865 401.61734009 616.63769531 498.27685547]
+2025-04-13 23:52:03,201 - inference_class_final - DEBUG - Label: pretzel bites: 0.50
+2025-04-13 23:52:03,212 - inference_class_final - INFO - labels: pretzel bites: 0.50
+2025-04-13 23:52:04,344 - inference_class_final - DEBUG - Gripper Width: 0.8
+2025-04-13 23:52:32,124 - inference_class_final - INFO - Saved Cup Position: None
+2025-04-13 23:52:32,125 - inference_class_final - DEBUG - Not a cup.
+2025-04-13 23:52:34,220 - inference_class_final - INFO - Recognized food items: ['pretzel bites', 'green grapes']
+2025-04-13 23:52:34,220 - inference_class_final - INFO - Food_Classes: ['green grapes']
+2025-04-13 23:52:34,221 - inference_class_final - INFO - Detection Prompt: green grapes .
+2025-04-13 23:52:34,221 - inference_class_final - INFO - Prompt: green grapes .
+2025-04-13 23:52:41,548 - inference_class_final - DEBUG - Objects: [{'bbox': [930.494384765625, 369.9768371582031, 1011.7021484375, 454.5278625488281], 'category': 'green grapes', 'score': 0.5046690702438354}, {'bbox': [695.1455688476562, 421.87890625, 779.0174560546875, 510.12152099609375], 'category': 'green grapes', 'score': 0.4757270812988281}]
+2025-04-13 23:52:43,641 - inference_class_final - DEBUG - Scores: [[0.9609375]
+ [0.9609375]]
+2025-04-13 23:52:43,641 - inference_class_final - DEBUG - Index: 0 : [0.9609375]
+2025-04-13 23:52:43,641 - inference_class_final - DEBUG - confidence: 0.5046690702438354
+2025-04-13 23:52:43,642 - inference_class_final - DEBUG - Detec Box: [ 930.49438477  369.97683716 1011.70214844  454.52786255]
+2025-04-13 23:52:43,658 - inference_class_final - DEBUG - Label: green grapes: 0.50
+2025-04-13 23:52:43,661 - inference_class_final - INFO - labels: green grapes: 0.50
+2025-04-13 23:52:44,796 - inference_class_final - DEBUG - Gripper Width: 0.73
+2025-04-13 23:53:05,554 - inference_class_final - INFO - Selected food item: pretzel bites
+2025-04-13 23:53:09,222 - inference_class_final - INFO - Saved Cup Position: None
+2025-04-13 23:53:09,222 - inference_class_final - DEBUG - Not a cup.
+2025-04-13 23:53:11,158 - inference_class_final - INFO - Recognized food items: ['pretzel bites', 'green grapes']
+2025-04-13 23:53:11,158 - inference_class_final - INFO - User selected food item: ['pretzel bites']
+2025-04-13 23:53:11,158 - inference_class_final - INFO - Food_Classes: ['pretzel bites']
+2025-04-13 23:53:11,159 - inference_class_final - INFO - Detection Prompt: pretzel bites .
+2025-04-13 23:53:11,159 - inference_class_final - INFO - Prompt: pretzel bites .
+2025-04-13 23:53:14,490 - inference_class_final - DEBUG - Objects: [{'bbox': [501.961181640625, 339.0167236328125, 596.8016357421875, 434.3080139160156], 'category': 'pretzel bites', 'score': 0.5251253247261047}, {'bbox': [875.1256103515625, 571.1746215820312, 955.680419921875, 640.77392578125], 'category': 'pretzel bites', 'score': 0.5152540802955627}, {'bbox': [729.3146362304688, 167.49708557128906, 810.8931884765625, 264.6485900878906], 'category': 'pretzel bites', 'score': 0.48084431886672974}, {'bbox': [663.7894287109375, 645.074462890625, 738.9456787109375, 707.548828125], 'category': 'pretzel bites', 'score': 0.4792599678039551}, {'bbox': [695.0615234375, 421.82537841796875, 779.2603759765625, 510.8084716796875], 'category': 'pretzel bites', 'score': 0.2950267493724823}]
+2025-04-13 23:53:16,707 - inference_class_final - DEBUG - Scores: [[0.94921875]
+ [0.953125  ]
+ [0.94921875]
+ [0.94140625]
+ [0.95703125]]
+2025-04-13 23:53:16,707 - inference_class_final - DEBUG - Index: 0 : [0.94921875]
+2025-04-13 23:53:16,707 - inference_class_final - DEBUG - confidence: 0.5251253247261047
+2025-04-13 23:53:16,708 - inference_class_final - DEBUG - Detec Box: [501.96118164 339.01672363 596.80163574 434.30801392]
+2025-04-13 23:53:16,726 - inference_class_final - DEBUG - Label: pretzel bites: 0.53
+2025-04-13 23:53:16,731 - inference_class_final - INFO - labels: pretzel bites: 0.53
+2025-04-13 23:53:17,848 - inference_class_final - DEBUG - Gripper Width: 0.8
+2025-04-13 23:53:41,854 - inference_class_final - INFO - Saved Cup Position: None
+2025-04-13 23:53:41,854 - inference_class_final - DEBUG - Not a cup.
+2025-04-13 23:53:43,826 - inference_class_final - INFO - Recognized food items: ['green grapes', 'pretzel bites']
+2025-04-13 23:53:43,826 - inference_class_final - INFO - Food_Classes: ['pretzel bites']
+2025-04-13 23:53:43,826 - inference_class_final - INFO - Detection Prompt: pretzel bites .
+2025-04-13 23:53:43,826 - inference_class_final - INFO - Prompt: pretzel bites .
+2025-04-13 23:53:48,981 - inference_class_final - DEBUG - Objects: [{'bbox': [875.6363525390625, 571.1834716796875, 955.7894287109375, 640.8798828125], 'category': 'pretzel bites', 'score': 0.4678179919719696}, {'bbox': [663.6142578125, 645.2058715820312, 760.4052124023438, 719.7672119140625], 'category': 'pretzel bites', 'score': 0.45834869146347046}, {'bbox': [729.2670288085938, 167.64369201660156, 811.0724487304688, 265.57757568359375], 'category': 'pretzel bites', 'score': 0.4111108183860779}, {'bbox': [694.7596435546875, 422.0914611816406, 779.20166015625, 510.8439025878906], 'category': 'pretzel bites', 'score': 0.2735744118690491}]
+2025-04-13 23:53:49,659 - inference_class_final - INFO - Selected food item: green grapes
+2025-04-13 23:53:51,197 - inference_class_final - DEBUG - Scores: [[0.953125  ]
+ [0.9375    ]
+ [0.94921875]
+ [0.95703125]]
+2025-04-13 23:53:51,197 - inference_class_final - DEBUG - Index: 0 : [0.953125]
+2025-04-13 23:53:51,197 - inference_class_final - DEBUG - confidence: 0.4678179919719696
+2025-04-13 23:53:51,198 - inference_class_final - DEBUG - Detec Box: [875.63635254 571.18347168 955.78942871 640.87988281]
+2025-04-13 23:53:51,214 - inference_class_final - DEBUG - Label: pretzel bites: 0.47
+2025-04-13 23:53:51,225 - inference_class_final - INFO - labels: pretzel bites: 0.47
+2025-04-13 23:53:52,354 - inference_class_final - DEBUG - Gripper Width: 0.79
+2025-04-13 23:54:23,117 - inference_class_final - INFO - Selected food item: green grapes
+2025-04-13 23:54:28,104 - inference_class_final - INFO - Saved Cup Position: None
+2025-04-13 23:54:28,104 - inference_class_final - DEBUG - Not a cup.
+2025-04-13 23:54:29,976 - inference_class_final - INFO - Recognized food items: ['green grapes', 'pretzel bites']
+2025-04-13 23:54:29,977 - inference_class_final - INFO - User selected food item: ['green grapes']
+2025-04-13 23:54:29,978 - inference_class_final - INFO - Food_Classes: ['green grapes']
+2025-04-13 23:54:29,978 - inference_class_final - INFO - Detection Prompt: green grapes .
+2025-04-13 23:54:29,978 - inference_class_final - INFO - Prompt: green grapes .
+2025-04-13 23:54:34,090 - inference_class_final - DEBUG - Objects: [{'bbox': [455.06158447265625, 486.5112609863281, 532.9786376953125, 571.8484497070312], 'category': 'green grapes', 'score': 0.4810881018638611}, {'bbox': [695.3152465820312, 421.6541442871094, 779.0526123046875, 510.02276611328125], 'category': 'green grapes', 'score': 0.4330222010612488}]
+2025-04-13 23:54:36,262 - inference_class_final - DEBUG - Scores: [[0.95703125]
+ [0.95703125]]
+2025-04-13 23:54:36,263 - inference_class_final - DEBUG - Index: 0 : [0.95703125]
+2025-04-13 23:54:36,263 - inference_class_final - DEBUG - confidence: 0.4810881018638611
+2025-04-13 23:54:36,263 - inference_class_final - DEBUG - Detec Box: [455.06158447 486.51126099 532.9786377  571.84844971]
+2025-04-13 23:54:36,279 - inference_class_final - DEBUG - Label: green grapes: 0.48
+2025-04-13 23:54:36,290 - inference_class_final - INFO - labels: green grapes: 0.48
+2025-04-13 23:54:37,405 - inference_class_final - DEBUG - Gripper Width: 0.74
+2025-04-13 23:54:56,532 - inference_class_final - INFO - Selected food item: pretzel bites
+2025-04-13 23:55:04,606 - inference_class_final - INFO - Saved Cup Position: None
+2025-04-13 23:55:04,606 - inference_class_final - DEBUG - Not a cup.
+2025-04-13 23:55:19,655 - inference_class_final - INFO - Recognized food items: ['green grapes', 'pretzel bites']
+2025-04-13 23:55:19,656 - inference_class_final - INFO - User selected food item: ['pretzel bites']
+2025-04-13 23:55:19,656 - inference_class_final - INFO - Food_Classes: ['pretzel bites']
+2025-04-13 23:55:19,656 - inference_class_final - INFO - Detection Prompt: pretzel bites .
+2025-04-13 23:55:19,656 - inference_class_final - INFO - Prompt: pretzel bites .
+2025-04-13 23:55:24,112 - inference_class_final - DEBUG - Objects: [{'bbox': [893.7381591796875, 584.4401245117188, 975.9253540039062, 652.6787719726562], 'category': 'pretzel bites', 'score': 0.5035552382469177}, {'bbox': [676.79736328125, 646.3124389648438, 741.9801025390625, 706.17822265625], 'category': 'pretzel bites', 'score': 0.48023492097854614}, {'bbox': [731.50390625, 167.14109802246094, 813.8695068359375, 264.22052001953125], 'category': 'pretzel bites', 'score': 0.43398144841194153}, {'bbox': [703.2733154296875, 422.4246520996094, 787.79541015625, 511.3794860839844], 'category': 'pretzel bites', 'score': 0.2658804655075073}]
+2025-04-13 23:55:26,159 - inference_class_final - DEBUG - Scores: [[0.95703125]
+ [0.9375    ]
+ [0.94921875]
+ [0.95703125]]
+2025-04-13 23:55:26,159 - inference_class_final - DEBUG - Index: 0 : [0.95703125]
+2025-04-13 23:55:26,159 - inference_class_final - DEBUG - confidence: 0.5035552382469177
+2025-04-13 23:55:26,160 - inference_class_final - DEBUG - Detec Box: [893.73815918 584.44012451 975.925354   652.67877197]
+2025-04-13 23:55:26,179 - inference_class_final - DEBUG - Label: pretzel bites: 0.50
+2025-04-13 23:55:26,189 - inference_class_final - INFO - labels: pretzel bites: 0.50
+2025-04-13 23:55:27,309 - inference_class_final - DEBUG - Gripper Width: 0.79
+2025-04-13 23:56:02,966 - inference_class_final - INFO - Selected food item: green grapes
+2025-04-13 23:56:07,737 - inference_class_final - INFO - Saved Cup Position: None
+2025-04-13 23:56:07,737 - inference_class_final - DEBUG - Not a cup.
+2025-04-13 23:56:09,796 - inference_class_final - INFO - Recognized food items: ['pretzel bites', 'green grapes']
+2025-04-13 23:56:09,796 - inference_class_final - INFO - User selected food item: ['green grapes']
+2025-04-13 23:56:09,797 - inference_class_final - INFO - Food_Classes: ['green grapes']
+2025-04-13 23:56:09,797 - inference_class_final - INFO - Detection Prompt: green grapes .
+2025-04-13 23:56:09,797 - inference_class_final - INFO - Prompt: green grapes .
+2025-04-13 23:56:14,086 - inference_class_final - DEBUG - Objects: [{'bbox': [916.0816040039062, 537.76416015625, 1003.72705078125, 615.743408203125], 'category': 'green grapes', 'score': 0.543347954750061}, {'bbox': [703.36767578125, 422.3308410644531, 787.564453125, 510.3370056152344], 'category': 'green grapes', 'score': 0.4942934811115265}]
+2025-04-13 23:56:16,128 - inference_class_final - DEBUG - Scores: [[0.9609375 ]
+ [0.95703125]]
+2025-04-13 23:56:16,129 - inference_class_final - DEBUG - Index: 0 : [0.9609375]
+2025-04-13 23:56:16,129 - inference_class_final - DEBUG - confidence: 0.543347954750061
+2025-04-13 23:56:16,130 - inference_class_final - DEBUG - Detec Box: [ 916.081604    537.76416016 1003.72705078  615.7434082 ]
+2025-04-13 23:56:16,145 - inference_class_final - DEBUG - Label: green grapes: 0.54
+2025-04-13 23:56:16,149 - inference_class_final - INFO - labels: green grapes: 0.54
+2025-04-13 23:56:17,262 - inference_class_final - DEBUG - Gripper Width: 0.72
+2025-04-13 23:56:53,561 - inference_class_final - INFO - Selected food item: pretzel bites
+2025-04-13 23:56:54,240 - inference_class_final - INFO - Saved Cup Position: None
+2025-04-13 23:56:54,241 - inference_class_final - DEBUG - Not a cup.
+2025-04-13 23:56:59,518 - inference_class_final - INFO - Recognized food items: ['pretzel bites', 'green grapes']
+2025-04-13 23:56:59,519 - inference_class_final - INFO - User selected food item: ['pretzel bites']
+2025-04-13 23:56:59,519 - inference_class_final - INFO - Food_Classes: ['pretzel bites']
+2025-04-13 23:56:59,519 - inference_class_final - INFO - Detection Prompt: pretzel bites .
+2025-04-13 23:56:59,520 - inference_class_final - INFO - Prompt: pretzel bites .
+2025-04-13 23:57:04,103 - inference_class_final - DEBUG - Objects: [{'bbox': [669.4376220703125, 145.30735778808594, 763.994384765625, 242.43492126464844], 'category': 'pretzel bites', 'score': 0.5004959106445312}, {'bbox': [469.85699462890625, 355.71197509765625, 560.8440551757812, 452.8397521972656], 'category': 'pretzel bites', 'score': 0.4979706406593323}, {'bbox': [689.705078125, 615.7922973632812, 786.92333984375, 691.3445434570312], 'category': 'pretzel bites', 'score': 0.4030968248844147}]
+2025-04-13 23:57:06,254 - inference_class_final - DEBUG - Scores: [[0.953125  ]
+ [0.953125  ]
+ [0.87890625]]
+2025-04-13 23:57:06,254 - inference_class_final - DEBUG - Index: 0 : [0.953125]
+2025-04-13 23:57:06,254 - inference_class_final - DEBUG - confidence: 0.5004959106445312
+2025-04-13 23:57:06,255 - inference_class_final - DEBUG - Detec Box: [669.43762207 145.30735779 763.99438477 242.43492126]
+2025-04-13 23:57:06,280 - inference_class_final - DEBUG - Label: pretzel bites: 0.50
+2025-04-13 23:57:06,285 - inference_class_final - INFO - labels: pretzel bites: 0.50
+2025-04-13 23:57:07,416 - inference_class_final - DEBUG - Gripper Width: 0.78
+2025-04-13 23:57:26,740 - inference_class_final - INFO - Selected food item: green grapes
+2025-04-13 23:57:38,018 - inference_class_final - INFO - Saved Cup Position: None
+2025-04-13 23:57:38,018 - inference_class_final - DEBUG - Not a cup.
+2025-04-13 23:57:39,765 - inference_class_final - INFO - Recognized food items: ['pretzel bites', 'green grapes']
+2025-04-13 23:57:39,765 - inference_class_final - INFO - User selected food item: ['green grapes']
+2025-04-13 23:57:39,765 - inference_class_final - INFO - Food_Classes: ['green grapes']
+2025-04-13 23:57:39,765 - inference_class_final - INFO - Detection Prompt: green grapes .
+2025-04-13 23:57:39,765 - inference_class_final - INFO - Prompt: green grapes .
+2025-04-13 23:57:43,120 - inference_class_final - DEBUG - Objects: [{'bbox': [692.4014282226562, 392.68951416015625, 778.5682373046875, 480.17218017578125], 'category': 'green grapes', 'score': 0.48505085706710815}]
+2025-04-13 23:57:45,331 - inference_class_final - DEBUG - Scores: [0.95703125]
+2025-04-13 23:57:45,331 - inference_class_final - DEBUG - Index: 0 : 0.95703125
+2025-04-13 23:57:45,332 - inference_class_final - DEBUG - confidence: 0.48505085706710815
+2025-04-13 23:57:45,332 - inference_class_final - DEBUG - Detec Box: [692.40142822 392.68951416 778.5682373  480.17218018]
+2025-04-13 23:57:45,348 - inference_class_final - DEBUG - Label: green grapes: 0.49
+2025-04-13 23:57:45,351 - inference_class_final - INFO - labels: green grapes: 0.49
+2025-04-13 23:57:46,470 - inference_class_final - DEBUG - Gripper Width: 0.72
+2025-04-13 23:58:13,897 - inference_class_final - INFO - Saved Cup Position: None
+2025-04-13 23:58:13,897 - inference_class_final - DEBUG - Not a cup.

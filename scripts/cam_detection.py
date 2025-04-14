@@ -124,7 +124,7 @@ def main():
     rospy.init_node('cam_detection', anonymous=True)
     cd = CamDetection()
     raf_utils.play_sound("intro")
-    cd.raf_assistant_pub.publish("Hi there")
+    #cd.raf_assistant_pub.publish("Hi there")
     if config['voice_command']:
         while config['voice_command']:
             if cd.get_command() == 'stop':

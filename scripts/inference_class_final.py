@@ -113,11 +113,15 @@ class BiteAcquisitionInference:
         self.bite_transfer_height = config['bite_transfer_height']
         self.onTable = config['on_table']
         self.savedCupPosition = None
+        self.dynamic_sipping = config['dynamic_sipping']
+        self.terminateSip = False
+        self.userPreferenceFoodItem = None
         
 
         # Publisher for the visual_servo_data topic
         self.visual_servo_pub = rospy.Publisher('visual_servo_data', VisualServoData, queue_size=10)
         self.raf_assistant_pub = rospy.Publisher('/raf_voice_assistant', String, queue_size=10)
+        self.raf_food_items_pub = rospy.Publisher('/raf_food_items', String, queue_size=10)
 
         rospy.Subscriber('speech_commands', String, self.command_callback)
         rospy.Subscriber('/function_call', String, self.Gemini_function_callback)
@@ -130,6 +134,12 @@ class BiteAcquisitionInference:
         function_name = msg.data
         if function_name == 'Drink':
             self.command_stack.append('drink')
+        elif function_name == 'terminateSipping':
+            self.terminateSipping(finished=True)
+        elif 'select_food_item' in function_name:
+            food_item = function_name.split('#',1)[-1]
+            self.logger.info(f"Selected food item: {food_item}")
+            self.userPreferenceFoodItem = food_item
 
 
     # Voice Recognition module
@@ -174,9 +184,13 @@ class BiteAcquisitionInference:
             elif self.get_command() == 'drink':
                 self.clear_stack()
                 self.clear_plate(cup=True)
+            elif self.get_command() == 'terminateSipping':
+                self.clear_stack()
+                self.terminateSipping(finished=True)
 
     def AI_voice_prompt(self, prompt):
         self.raf_assistant_pub.publish(f"Robot: {prompt}")
+
 
     # Data Logging and Results
     def logging(self, success=0, retries=0):
@@ -338,11 +352,18 @@ class BiteAcquisitionInference:
             self.logger.debug("Not a cup.")
             asyncio.run(self.robot_controller.reset())
             camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
-            food_items = self.recognize_items(camera_color_data)
+            if self.userPreferenceFoodItem is not None:
+                food_items = [self.userPreferenceFoodItem]
+                self.logger.info('User selected food item: %s', food_items)
+                self.userPreferenceFoodItem = None
+            else:
+                food_items = self.recognize_items(camera_color_data)
+                self.raf_food_items_pub.publish(", ".join(food_items))
+                self.logger.info('Recognized food items: %s', food_items)
             print('FOOD ITEMS:', food_items)
             #food_items = ["pretzel bites"]
             if food_items is None:
-                self.AI_voice_prompt("I couldn't find any food on the plate.")
+                #self.AI_voice_prompt("I couldn't find any food on the plate.")
                 sys.exit(1)
             food_items = raf_utils.randomize_selection(food_items)
             
@@ -356,13 +377,13 @@ class BiteAcquisitionInference:
                 self.get_cup_action('cup .')
             camera_header, camera_color_data, camera_info_data, camera_depth_data = self.camera.get_camera_data()
             det_prompt = 'cup .'
-            self.AI_voice_prompt("I'm picking up a cup")
+            #self.AI_voice_prompt("I'm picking up a cup")
 
         # Prompt DINO-X with the detection prompt
         annotated_frame, detection, mask, label = self.detect_food(camera_color_data, det_prompt)
         #self.track_item(detection)
         if annotated_frame is None or detection is None or mask is None or label is None:
-            self.AI_voice_prompt("I couldn't pick up the food. I'll try again.")
+            #self.AI_voice_prompt("I couldn't pick up the food. I'll try again.")
             self.logger.warning("food item not detected. Terminating Script")
             raf_utils.save_camera_data(camera_color_data)
             self.clear_plate()
@@ -467,7 +488,7 @@ class BiteAcquisitionInference:
             self.clear_stack()
             self.clear_plate(cup=True)
             return
-        self.AI_voice_prompt(f"I can see {food_items} on the plate. I'll try pick it up")
+        #self.AI_voice_prompt(f"I can see {food_items} on the plate. I'll try pick it up")
          # Item selected for grasping
         grasp_point, centroid, yaw_angle, wp1, wp2, p1, p2 = self.calculate_grasp_point_width(food_mask, category)
         pose, width_point1, width_point2, center_point = self.get_object_position(camera_info_data, camera_depth_data, yaw_angle, grasp_point, wp1, wp2, category)
@@ -503,7 +524,7 @@ class BiteAcquisitionInference:
             self.AI_voice_prompt("I dropped the food. I'll try again")
             self.clear_plate()
             return
-        self.AI_voice_prompt("I'm feeding you now")
+        #self.AI_voice_prompt("I'm feeding you now")
         if category == 'single-bite' and self.bite_transfer_height == 'TALL':
             asyncio.run(self.robot_controller.move_to_feed_pose('TALL'))
         elif category == 'single-bite' and self.bite_transfer_height == 'SHORT':
@@ -571,13 +592,20 @@ class BiteAcquisitionInference:
             asyncio.run(self.robot_controller.move_to_sip_pose('CUSTOM'))
         else:
             asyncio.run(self.robot_controller.move_to_sip_pose(self.bite_transfer_height))
-        time.sleep(5)
+        #Timer or dynamic wait
+        if self.dynamic_sipping:
+            while not self.terminateSip:
+                print("Waiting for sip to finish...")
+                pass
+        else:
+            time.sleep(5)
         #asyncio.run(self.robot_controller.move_to_cup_joint())
         asyncio.run(self.robot_controller.move_to_pose(self.savedCupPosition))
         asyncio.run(self.robot_controller.setting_gripper_value(0))
         #cup_position.position.z += 0.25
         asyncio.run(self.robot_controller.move_to_pose(cup_position))
         asyncio.run(self.robot_controller.reset())
+        self.terminateSip = False
         if self.get_command() == 'stop':
             self.clear_stack()
             sys.exit(1)
@@ -596,6 +624,10 @@ class BiteAcquisitionInference:
         if not raf_utils.validate_with_user(user_validation):
             sys.exit(1)
         cv2.destroyAllWindows()
+
+    def terminateSipping(self, finished=False):
+        self.terminateSip = finished
+        return self.terminateSip
 
     def calculate_grasp_point_width(self, item_mask, category):
         if category == 'multi-bite':

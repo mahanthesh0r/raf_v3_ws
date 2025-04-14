@@ -54,8 +54,11 @@ class KinovaRobotController(RobotController):
         self.multi_bite_transfer = config['joint_positions']['multi_bite_transfer']
         self.cup_feed_pose = config['joint_positions']['cup_feed_pose']
 
-        self.pre_calibration_pose = [6.14757322, 0.608613763, 4.6216319, 1.64115055, 4.807526878, 5.575436842]
-        self.pre_calibration_pose_degrees = [352.23,34.871,264.8,94.031,275.415,319.449]
+        #self.pre_calibration_pose = [6.14757322, 0.608613763, 4.6216319, 1.64115055, 4.807526878, 5.575436842]
+        #self.pre_calibration_pose_degrees = [352.23,34.871,264.8,94.031,275.415,319.449]
+        #steve's pre calibration pose
+        self.pre_calibration_pose = [6.063204008, 1.15282488, 5.21294941, 1.58514293, 4.739459037, 5.622805078]
+        self.pre_calibration_pose_degrees = [347.396, 66.052, 298.68, 90.822, 271.551, 322.163]
     async def reset(self):
         await self.move_to_acq_pose()
         #await self.setting_gripper_value(0.0)
