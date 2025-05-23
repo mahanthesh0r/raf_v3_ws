@@ -122,6 +122,7 @@ class BiteAcquisitionInference:
         self.visual_servo_pub = rospy.Publisher('visual_servo_data', VisualServoData, queue_size=10)
         self.raf_assistant_pub = rospy.Publisher('/raf_voice_assistant', String, queue_size=10)
         self.raf_food_items_pub = rospy.Publisher('/raf_food_items', String, queue_size=10)
+        self.raf_bite_transfer_mode = rospy.Publisher('/is_bite_transfer', String, queue_size=10)
 
         rospy.Subscriber('speech_commands', String, self.command_callback)
         rospy.Subscriber('/function_call', String, self.Gemini_function_callback)

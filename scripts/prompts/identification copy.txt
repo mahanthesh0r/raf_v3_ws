@@ -1,19 +1,19 @@
 Objective: To determine the items on the plate.
-Available items: ['pretzel bites','celery', 'carrots','pretzel rods','sushi','green grapes','chicken nuggets', 'chocolate', 'gummies']
+Available items: ['pretzel bites','celery', 'carrots','pretzel rods','sushi','green grapes','watermelon','fried chicken','chicken nuggets', 'chocolate','tomato','green vegetable','donuts', ' yellow popcorn', 'mandarin bites', 'gummies', 'dumplings']
 
 
 You have been given an image.From the available items, what items are present, as a comma-separated list? Format your answer in one-line as follows: ['first_item', 'second_item', 'third_item', ...]. Do not list an item that is not in the given list of available items.
 Assume that everything on the plate is listed in the available items. If 3 different food items are on the plate then the list should contain 3 food items. Make sure the number of distinguishable items detected is the number of elements in the list.
 Chicken tenders are longer and skinner, like an oval. Chicken nuggets are rounder. Do not confuse nuggets and tenders.
 Examples:
-Input: Picture of pretzel rods, green grapes, carrots, and chicken nuggets.
-Output: ['pretezl rods','green grapes','carrots','chicken nuggets']
+Input: Picture of pretzel rods, green grapes, carrots, and chicken tenders.
+Output: ['pretezl rods','green grapes','carrots','chicken tenders']
 
 Input: Picture of carrots.
 Output: ['carrots']
 
-Input: Picture of pretzel rods and pretzel bites.
-Output: ['pretzel rods','pretzel bites']
+Input: Picture of pretzel rods and a donut.
+Output: ['pretzel rods','donuts']
 
-Input: Picture of celery, carrots.
-Output: ['celery','carrots']
+Input: Picture of celery, watermelon.
+Output: ['celery','watermelon']
